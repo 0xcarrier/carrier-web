@@ -836,7 +836,6 @@ export const SOL_TOKEN_BRIDGE_ADDRESS =
 
 export const SOL_CUSTODY_ADDRESS = 'GugU1tP7doLeTw9hQP51xRJyS8Da1fWxuiy2rVrnMD2m';
 export const SOL_NFT_CUSTODY_ADDRESS = 'D63bhHo634eXSj4Jq3xgu2fjB5XKc8DFHzDY9iZk7fv1';
-export const TERRA_TEST_TOKEN_ADDRESS = 'terra13nkgqrfymug724h8pprpexqj9h629sa3ncw7sh';
 export const TERRA_BRIDGE_ADDRESS =
   CLUSTER === 'mainnet'
     ? 'terra1dq03ugtd40zu9hcgdzrsq6z2z4hwhc9tqk2uy5'
