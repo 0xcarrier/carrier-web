@@ -42,12 +42,12 @@ jobs:
           DESITINATION_WALLET_TIPS_LINK: "https://docs.carrier.so/resources/frequently-asked-questions#can-i-use-any-wallet-address-as-the-destination-wallet"
           CARRIER_VERSION: "${{ steps.get-latest-tag.outputs.tag }}"
           # DISABLED_CHAINS: '[{"source": "all", "target": 2, "disableChain": true, "bothDirections": false, "disableTokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]}]'
-        run: npm i && npm run build:production && echo staging.carrier.so > dist/CNAME && cp dist/index.html dist/200.html
+        run: npm i && npm run build:production && cp dist/index.html dist/200.html
       - name: Deploy
         id: deploy
         uses: dswistowski/surge-sh-action@v1
         with:
-          domain: "carrier-staging.surge.sh"
+          domain: "staging.carrier.so"
           project: "dist"
           login: ${{ vars.SURGE_LOGIN }}
           token: ${{ secrets.SURGE_TOKEN }}
