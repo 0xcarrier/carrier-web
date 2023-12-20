@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>oasis-network-rose-logo</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="oasis-network-rose-logo" fill-rule="nonzero">
+            <circle id="Oval" fill="#142477" cx="40" cy="40" r="40"></circle>
+            <circle id="Oval" fill="#1F293D" cx="40" cy="40" r="32"></circle>
+            <g id="Clipped" transform="translate(22.728000, 20.728000)" fill="#CDFA50">
+                <path d="M8,28 L8,40 L0,40 L0,28 L8,28 Z M30,20 L30,28 L8,28 L8,20 L30,20 Z M38,8 L38,20 L30,20 L30,8 L38,8 Z M30,0 L30,7.99933533 L7.50077906,7.99933533 L7.50077906,20 L0,20 L0,0 L30,0 Z" id="Combined-Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>

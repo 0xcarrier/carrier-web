@@ -1,0 +1,9 @@
+[
+  {
+    "inputs": [],
+    "name": "getLastChildBlock",
+    "outputs": [{ "internalType": "uint256", "name": "lastCheckBlock", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

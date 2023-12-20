@@ -1,0 +1,21 @@
+{
+  "supportedTokens": [
+    {
+      "chainId": 10,
+      "address": "0xf1277d1ed8ad466beddf92ef448a132661956621",
+      "coingeckoId": "fantom"
+    }
+  ],
+  "relayers": [
+    {
+      "name": "Relayer One",
+      "url": "https://wormhole-v2-mainnet-relayer.certus.one"
+    }
+  ],
+  "feeSchedule": {
+    "10": {
+      "type": "flat",
+      "feeUsd": 0.5
+    }
+  }
+}

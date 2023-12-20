@@ -1,0 +1,69 @@
+name: Carrier bridge staging CI/CD
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "npm"
+          cache-dependency=path: package-lock.json
+          check-latest: true
+      - name: Get Git Tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+      - name: Build
+        env:
+          NODE_OPTIONS: "--max_old_space_size=8192"
+          CLUSTER: "testnet"
+          TESTNET_TXN_INDEXER: "https://carrier-indexer-staging.ata.network"
+          TESTNET_SOLANA_API_URL: "https://api.devnet.solana.com"
+          MAINNET_TXN_INDEXER: "https://carrier-indexer.ata.network"
+          MAINNET_SOLANA_API_URL: "https://solana-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY_XF }}"
+          ENABLE_NFT_MINTING: true
+          ENABLE_ENV_SELECTOR: true
+          ENABLE_SWAP: true
+          COVALENT_KEY: "${{ secrets.COVALENT_KEY_STAGING }}"
+          ASSET_SERVICE_KEY: ""
+          WALLET_CONNECT_PROJECT_ID: "${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
+          DISCLAIMER_LINK: "https://docs.carrier.so/resources/disclaimer"
+          DESITINATION_WALLET_TIPS_LINK: "https://docs.carrier.so/resources/frequently-asked-questions#can-i-use-any-wallet-address-as-the-destination-wallet"
+          CARRIER_VERSION: "${{ steps.get-latest-tag.outputs.tag }}"
+          # DISABLED_CHAINS: '[{"source": "all", "target": 2, "disableChain": true, "bothDirections": false, "disableTokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]}]'
+        run: npm install && npm run build:production
+      - name: Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WITTY_COAST_0E6A5E110 }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          action: "upload"
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: "dist" # App source code path
+          api_location: "" # Api source code path - optional
+          output_location: "dist" # Built app content directory - optional
+          ###### End of Repository/Build Configurations ######
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WITTY_COAST_0E6A5E110 }}
+          action: "close"

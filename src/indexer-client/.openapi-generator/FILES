@@ -1,0 +1,13 @@
+.openapi-generator-ignore
+apis/DefaultApi.ts
+apis/index.ts
+index.ts
+models/ApiV1TransactionsSyncPost200Response.ts
+models/ApiV1TransactionsSyncPostRequest.ts
+models/ApiV1WormholeXswapPost200Response.ts
+models/ApiV1WormholeXswapPost200ResponseRoutesInner.ts
+models/ApiV1WormholeXswapPostRequest.ts
+models/TokenState.ts
+models/XSwapHop.ts
+models/index.ts
+runtime.ts

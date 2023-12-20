@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>polkadot-js</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#004BFF" offset="0%"></stop>
+            <stop stop-color="#4CEAAC" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="polkadot-js" fill-rule="nonzero">
+            <circle id="Oval" fill="#142477" cx="40" cy="40" r="40"></circle>
+            <rect id="Rectangle" fill="url(#linearGradient-1)" x="8" y="8" width="64" height="64" rx="32"></rect>
+            <polygon id="Path" fill="#FFFFFF" points="54.7239264 33.9709521 54.7239264 27.9230184 30.5069497 18.208589 25.6687117 20.6655706 25.6942258 39.4897178 43.8122405 46.7850282 34.1356736 50.9051485 34.1356736 47.7189718 29.6932221 45.9156417 25.6942258 47.8055926 25.6942258 59.3344294 30.5112172 61.791411 54.7239264 50.8673767 54.7239264 43.1184417 32.9325153 34.3962479 32.9325153 29.1042945 50.2219117 36.0121718"></polygon>
+        </g>
+    </g>
+</svg>

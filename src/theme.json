@@ -1,0 +1,8 @@
+{
+  "text-color": "var(--color-text)",
+  "text-color-secondary": "#a7a7a7",
+  "border-color-base": "var(--color-border)",
+  "btn-ghost-color": "var(--color-btn-ghost)",
+  "btn-ghost-border": "var(--color-btn-ghost-border)",
+  "root-entry-name": "variable"
+}

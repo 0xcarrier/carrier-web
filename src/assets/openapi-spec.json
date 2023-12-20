@@ -1,0 +1,274 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Indexer API",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/api/v1/wormhole-xswap": {
+      "post": {
+        "summary": "Cross-chain swap for Wormhole Carrier",
+        "x-apifox-folder": "",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "srcAmount and dstAmount must have one and only one not-null",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "srcChain": {
+                    "description": "src wormhole chain id",
+                    "type": "integer"
+                  },
+                  "srcToken": {
+                    "type": "string",
+                    "description": "src token address"
+                  },
+                  "srcAmount": {
+                    "type": "string",
+                    "description": "src token amount, bigint wei"
+                  },
+                  "dstChain": {
+                    "description": "dest wormhole chain id",
+                    "type": "integer"
+                  },
+                  "dstToken": {
+                    "type": "string",
+                    "description": "dest token address"
+                  },
+                  "dstAmount": {
+                    "type": "string",
+                    "description": "dest token amount, bigint wei"
+                  }
+                },
+                "x-apifox-orders": ["srcChain", "srcToken", "srcAmount", "dstChain", "dstToken", "dstAmount"],
+                "required": ["srcChain", "srcToken", "dstChain", "dstToken"],
+                "x-apifox-ignore-properties": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "routes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "amount": {
+                            "type": "string",
+                            "description": "final token amount will be received"
+                          },
+                          "hops": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/XSwapHop",
+                              "x-apifox-overrides": {}
+                            },
+                            "description": "paths"
+                          }
+                        },
+                        "x-apifox-orders": ["amount", "hops"],
+                        "required": ["amount"],
+                        "x-apifox-ignore-properties": []
+                      }
+                    }
+                  },
+                  "x-apifox-orders": ["routes"],
+                  "required": ["routes"],
+                  "x-apifox-ignore-properties": []
+                },
+                "examples": {
+                  "1": {
+                    "summary": "Success Example",
+                    "value": {
+                      "routes": [
+                        {
+                          "amount": "100000000000000000",
+                          "hops": [
+                            {
+                              "type": "swap",
+                              "chain": 2,
+                              "amountIn": "100000000000000000",
+                              "amountOut": "100000000000000000000",
+                              "transitTokenAddress": "0x509ee0d083ddf8ac028f2a56731412edd63223b9",
+                              "providerFee": "100000",
+                              "bridge": "swap",
+                              "pool": "uniswap",
+                              "dex": "uniswap"
+                            },
+                            {
+                              "type": "swap",
+                              "chain": 4,
+                              "amountIn": "100000000000000000000",
+                              "amountOut": "27000000000000000000",
+                              "transitTokenAddress": "0x509ee0d083ddf8ac028f2a56731412edd63223b9",
+                              "providerFee": "100000",
+                              "bridge": "swap",
+                              "pool": "uniswap",
+                              "dex": "uniswap"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/sync": {
+      "post": {
+        "summary": "Sync transaction manully",
+        "x-apifox-folder": "",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "integer"
+                  },
+                  "chainId": {
+                    "type": "integer"
+                  },
+                  "hash": {
+                    "type": "string"
+                  }
+                },
+                "x-apifox-orders": ["type", "chainId", "hash"],
+                "required": ["type", "chainId", "hash"],
+                "x-apifox-ignore-properties": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  },
+                  "x-apifox-orders": ["msg"],
+                  "required": ["msg"],
+                  "x-apifox-ignore-properties": []
+                },
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TokenState": {
+        "type": "object",
+        "properties": {
+          "chain": {
+            "type": "integer",
+            "description": "ChainId"
+          },
+          "address": {
+            "type": "string",
+            "description": "token addr"
+          },
+          "amount": {
+            "type": "string",
+            "description": "bigint wei"
+          }
+        },
+        "x-apifox-orders": ["chain", "address", "amount"],
+        "required": ["chain", "address", "amount"],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": ""
+      },
+      "XSwapHop": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["swap", "bridge"],
+            "x-apifox": {
+              "enumDescriptions": {
+                "swap": "",
+                "bridge": ""
+              }
+            }
+          },
+          "tokenIn": {
+            "$ref": "#/components/schemas/TokenState",
+            "x-apifox-overrides": {}
+          },
+          "tokenOut": {
+            "$ref": "#/components/schemas/TokenState",
+            "x-apifox-overrides": {}
+          },
+          "dex": {
+            "type": "string",
+            "description": "when type=swap, this exists",
+            "enum": ["uniswap_v2", "quickswap"],
+            "x-apifox": {
+              "enumDescriptions": {
+                "uniswap_v2": "",
+                "quickswap": ""
+              }
+            }
+          },
+          "pool": {
+            "type": "string",
+            "description": "when type=swap, this exists, liquidity pool address on the selected dex"
+          },
+          "bridge": {
+            "type": "string",
+            "description": "when type=bridge, this exists",
+            "enum": ["wormhole", "tbtc", "cctp"],
+            "x-apifox": {
+              "enumDescriptions": {
+                "wormhole": "",
+                "tbtc": "",
+                "cctp": ""
+              }
+            }
+          },
+          "providerFee": {
+            "type": "string",
+            "description": "dex provider fee"
+          }
+        },
+        "x-apifox-orders": ["type", "tokenIn", "tokenOut", "dex", "pool", "bridge", "providerFee"],
+        "required": ["type", "tokenIn", "tokenOut", "providerFee"],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": ""
+      }
+    }
+  }
+}

@@ -1,0 +1,294 @@
+digraph Carrier {
+    label="Carrier Data Dependency"
+
+    subgraph clusterChainSelector {
+        label="ChainSelector"
+
+        chainSelectorChainId [label="chainId"]
+        chainSelectorIsVisible [label="isVisible"]
+        chainSelectorIsVisible -> chainSelectorModalIsVisible
+
+        subgraph clusterChainSelectorModal {
+            label="ChainSelectorModal"
+
+            chainSelectorModalIsVisible [label="isVisible"]                
+        }
+    }
+
+
+    subgraph clusterWalletSelectionButton {
+        label="WalletSelectionButton"
+        walletSelectionButtonSourceWalletAdapter [label="sourceWalletAdapter"]
+    }
+
+    subgraph clusterTokenBridge {
+        label="TokenBridge"
+        sourceChainId -> sourceChainSelectorSourceChainId
+        sourceChainId -> sourceWalletSelectorButtonSourceChainId
+        sourceWallet -> sourceWalletSelectorButtonSourceWallet
+        sourceWalletAdapter -> sourceWalletSelectorButtonSourceWalletAdapter
+        targetChainId -> targetChainSelectorTargetChainId
+        targetChainId -> targetWalletSelectorButtonTargetChainId
+        targetWallet -> targetWalletSelectorButtonTargetWallet
+        targetWalletAdapter -> targetWalletSelectorButtonTargetWalletAdapter
+        sourceChainId -> swapChainButtonSourceChainId
+        sourceWallet -> swapChainButtonSourceWallet
+        targetChainId -> swapChainButtonTargetChainId
+        targetWallet -> swapChainButtonTargetWallet
+        sourceToken -> tokenSelectorButtonSourceToken
+        sourceTokens -> tokenSelectorButtonSourceTokens
+        maxTokenData -> amountInputMaxTokenData
+        tokenAmountData -> amountInputTokenAmountData
+        sourceToken -> amountInputSourceToken
+        relayerData -> amountInputRelayerData
+        sourceChainId -> bridgeInfoSourceChainId
+        targetChainId -> bridgeInfoTargetChainId
+        sourceToken -> bridgeInfoSourceToken
+        tokenAmountData -> bridgeInfoTokenAmountData
+        relayerData -> bridgeInfoRelayerData
+        tokenPriceData -> bridgeInfoTokenPriceData
+        allowanceData -> bridgeInfoAllowanceData
+        sourceChainId -> sendOrApproveButtonSourceChainId
+        sourceWallet -> sendOrApproveButtonSourceWallet
+        allowanceData -> sendOrApproveButtonAllowanceData
+        tokenAmountData -> sendOrApproveButtonTokenAmountData
+        maxTokenData -> sendOrApproveButtonMaxTokenData
+        solanaAssociatedAccountData -> sendOrApproveButtonSolanaAssociatedAccountData
+        targetWallet -> sendOrApproveButtonTargetWallet
+        relayerData -> sendOrApproveButtonRelayerData
+        targetAsset -> sendOrApproveButtonTargetAsset
+        sourceToken -> sendOrApproveButtonSourceToken
+        targetAsset -> attestationRegistrationSectionTargetAsset
+        targetChainId -> attestationRegistrationSectionTargetChainId
+        sourceToken -> attestationRegistrationSectionSourceToken
+        sourceWalletAdapter -> attestationRegistrationSectionSourceWalletAdapter
+        attestationTx -> attestationRegistrationSectionAttestationTx
+        registrationTx -> attestationRegistrationSectionRegistrationTx
+        relayerData -> tokenBridgeSettingsButtonRelayerData
+        solanaAssociatedAccountData -> solanaAssociatedAccountCreatorSolanaAssociatedAccountData
+        targetAsset -> solanaAssociatedAccountCreatorTargetAsset
+        targetChainId -> solanaAssociatedAccountCreatorTargetChainId
+        targetWallet -> solanaAssociatedAccountCreatorTargetWallet
+        sourceWalletAdapter -> solanaAssociatedAccountCreatorSourceWalletAdapter
+        
+        subgraph clusterSourceChainSelector {
+            label="SourceChainSelector"
+            sourceChainSelectorSourceChainId [label="sourceChainId"]
+            sourceChainSelectorSourceChainId -> chainSelectorChainId
+        }
+
+        subgraph clusterSourceWalletSelectorButton {
+            label="SourceWalletSelectorButton"
+            sourceWalletSelectorButtonSourceChainId [label="sourceChainId"]
+            sourceWalletSelectorButtonSourceWallet [label="sourceWallet"]
+            sourceWalletSelectorButtonSourceWalletAdapter [label="sourceWalletAdapter"]
+            sourceWalletSelectorButtonIsVisible [label="isVisible"]
+            sourceWalletSelectorButtonIsVisible -> sourceWalletSelectorModalIsVisible
+            sourceWalletSelectorButtonSourceChainId -> sourceWalletSelectorModalSourceChainId
+            sourceWalletSelectorButtonSourceWalletAdapter -> sourceWalletSelectorModalSourceWalletAdapter
+            sourceWalletSelectorButtonSourceChainId -> sourceWalletDropdownSourceChainId
+            sourceWalletSelectorButtonSourceWallet -> sourceWalletDropdownSourceWallet
+
+            subgraph clusterSourceWalletSelectorModal {
+                label="SourceWalletSelectorModal"
+                sourceWalletSelectorModalSourceChainId [label="sourceChainId"]
+                sourceWalletSelectorModalIsVisible [label="isVisible"]
+                sourceWalletSelectorModalSourceWalletAdapter [label="sourceWalletAdapter"]
+            }
+
+            subgraph clusterSourceWalletDropdown {
+                label="SourceWalletSelectorDropdown"
+                sourceWalletDropdownSourceChainId [label="sourceChainId"]
+                sourceWalletDropdownSourceWallet [label="sourceWallet"]
+            }
+        }
+
+        subgraph clusterTargetChainSelector {
+            label="TargetChainSelector"
+            targetChainSelectorTargetChainId [label="targetChainId"]
+            targetChainSelectorTargetChainId -> chainSelectorChainId
+        }
+
+        subgraph clusterTargetWalletSelectorButton {
+            label="TargetWalletSelectorButton"
+            targetWalletSelectorButtonTargetChainId [label="targetChainId"]
+            targetWalletSelectorButtonTargetWallet [label="targetWallet"]
+            targetWalletSelectorButtonTargetWalletAdapter [label="targetWalletAdapter"]
+            targetWalletSelectorButtonIsVisible [label="isVisible"]
+            targetWalletSelectorButtonIsVisible -> targetWalletSelectorModalIsVisible
+            targetWalletSelectorButtonTargetChainId -> targetWalletSelectorModalTargetChainId
+            targetWalletSelectorButtonTargetWalletAdapter -> targetWalletSelectorModalTargetWalletAdapter
+            targetWalletSelectorButtonTargetChainId -> targetWalletSelectorDropdownTargetChainId
+            targetWalletSelectorButtonTargetWallet -> targetWalletSelectorDropdownTargetWallet
+            
+            subgraph clusterTargetWalletSelectorModal {
+                label="TargetWalletSelectorModal"
+                targetWalletSelectorModalIsVisible [label="isVisible"]
+                targetWalletSelectorModalTargetChainId [label="targetChainId"]
+                targetWalletSelectorModalTargetWalletAdapter [label="targetWalletAdapter"]
+            }
+            
+            subgraph clusterTargetWalletDropdown {
+                label="TargetWalletDropdown"
+                targetWalletSelectorDropdownTargetChainId [label="targetChainId"]
+                targetWalletSelectorDropdownTargetWallet [label="targetWallet"]
+            }
+        }
+
+        subgraph clusterSwapChainButton {
+            label="SwapChainButton"
+            swapChainButtonSourceChainId [label="sourceChainId"]
+            swapChainButtonSourceWallet [label="sourceWallet"]
+            swapChainButtonTargetChainId [label="targetChainId"]
+            swapChainButtonTargetWallet [label="targetWallet"]
+        }
+
+        subgraph clusterTokenSelectorButton {
+            label="TokenSelectorButton"
+            tokenSelectorButtonSourceToken [label="sourceToken"]
+            tokenSelectorButtonSourceTokens [label="sourceTokens"]
+            tokenSelectorButtonSourceTokens -> tokenSelectorModalSourceTokens
+
+            subgraph clusterTokenSelectorModal {
+                label="TokenSelectorModal"
+                tokenSelectorModalSourceTokens [label="sourceTokens"]
+            }
+        }
+
+        subgraph clusterAmountInput {
+            label="AmountInput"
+            amountInputMaxTokenData [label="maxTokenData"]
+            amountInputTokenAmountData [label="tokenAmountData"]
+            amountInputSourceToken [label="sourceToken"]
+            amountInputRelayerData [label="relayerData"]
+            amountInputMaxTokenData -> maxAmountButtonMaxTokenData
+
+            subgraph clusterMaxAmountButton {
+                label="MaxAmountButton"
+                maxAmountButtonMaxTokenData [label="maxTokenData"]
+            }
+        }
+
+        subgraph clusterTokenBridgeInfo {
+            label="BridgeInfo"
+            bridgeInfoSourceChainId [label="sourceChainId"]
+            bridgeInfoTargetChainId [label="targetChainId"]
+            bridgeInfoSourceToken [label="sourceToken"]
+            bridgeInfoTokenAmountData [label="tokenAmountData"]
+            bridgeInfoRelayerData [label="relayerData"]
+            bridgeInfoTokenPriceData [label="tokenPriceData"]
+            bridgeInfoAllowanceData [label="allowanceData"]
+            bridgeInfoSourceChainId -> feeEstimationSourceChainId
+            bridgeInfoTargetChainId -> feeEstimationTargetChainId
+            bridgeInfoSourceToken -> feeEstimationSourceToken
+            bridgeInfoTokenAmountData -> feeEstimationTokenAmountData
+            bridgeInfoRelayerData -> feeEstimationRelayerData
+            bridgeInfoTokenPriceData -> feeEstimationTokenPriceData
+            bridgeInfoAllowanceData -> feeEstimationAllowanceData
+            bridgeInfoAllowanceData -> timeEstimationSourceChainId
+            bridgeInfoSourceToken -> totalAmountSourceToken
+            bridgeInfoTokenAmountData -> totalAmountTokenAmountData
+            bridgeInfoRelayerData -> totalAmountRelayerData
+
+            subgraph clusterFeeEstimation {
+                label="FeeEstimation"
+                feeEstimationSourceChainId [label="sourceChainId"]
+                feeEstimationTargetChainId [label="targetChainId"]
+                feeEstimationSourceToken [label="sourceToken"]
+                feeEstimationTokenAmountData [label="tokenAmountData"]
+                feeEstimationRelayerData [label="relayerData"]
+                feeEstimationTokenPriceData [label="tokenPriceData"]
+                feeEstimationAllowanceData [label="allowanceData"]
+            }
+
+            subgraph clusterTimeEstimation {
+                label="TimeEstimation"
+                timeEstimationSourceChainId [label="sourceChainId"]
+            }
+
+            subgraph clusterTotalAmount {
+                label="TotalAmount"
+                totalAmountSourceToken [label="sourceToken"]
+                totalAmountTokenAmountData [label="tokenAmountData"]
+                totalAmountRelayerData [label="relayerData"]
+            }
+        }
+
+        subgraph clusterSendOrApproveButton {
+            label="SendOrApproveButton"
+            sendOrApproveButtonSourceChainId [label="sourceChainId"]
+            sendOrApproveButtonSourceWallet [label="sourceWallet"]
+            sendOrApproveButtonAllowanceData [label="allowanceData"]
+            sendOrApproveButtonTokenAmountData [label="tokenAmountData"]
+            sendOrApproveButtonMaxTokenData [label="maxTokenData"]
+            sendOrApproveButtonSolanaAssociatedAccountData [label="solanaAssociatedAccountData"]
+            sendOrApproveButtonTargetWallet [label="targetWallet"]
+            sendOrApproveButtonRelayerData [label="relayerData"]
+            sendOrApproveButtonTargetAsset [label="targetAsset"]
+            sendOrApproveButtonSourceToken [label="sourceToken"]
+            sendOrApproveButtonAllowanceData -> approveButtonAllowanceData
+            sendOrApproveButtonRelayerData -> approveButtonRelayerData
+            sendOrApproveButtonSourceChainId -> sendButtonSourceChainId
+            sendOrApproveButtonSourceWallet -> sendButtonSourceWallet
+            sendOrApproveButtonTargetWallet -> sendButtonTargetWallet
+            sendOrApproveButtonTokenAmountData -> sendButtonTokenAmountData
+            sendOrApproveButtonMaxTokenData -> sendButtonMaxTokenData
+            sendOrApproveButtonTargetAsset -> sendButtonTargetAsset
+            sendOrApproveButtonSourceToken -> sendButtonSourceToken
+            sendOrApproveButtonRelayerData -> sendButtonRelayerData
+
+            subgraph clusterApproveButton {
+                label="ApproveButton"
+                approveButtonAllowanceData [label="allowanceData"]
+                approveButtonRelayerData [label="relayerData"]
+            }
+
+            subgraph clusterSendButton {
+                label="SendButton"
+                sendButtonSourceChainId [label="sourceChainId"]
+                sendButtonSourceWallet [label="sourceWallet"]
+                sendButtonTargetWallet [label="targetWallet"]
+                sendButtonTokenAmountData [label="tokenAmountData"]
+                sendButtonMaxTokenData [label="maxTokenData"]
+                sendButtonTargetAsset [label="targetAsset"]
+                sendButtonSourceToken [label="sourceToken"]
+                sendButtonRelayerData [label="relayerData"]
+            }
+        }
+
+        subgraph clusterAttestationRegistrationSection {
+            label="AttestationRegistrationSection"
+            attestationRegistrationSectionTargetAsset [label="targetAsset"]
+            attestationRegistrationSectionTargetChainId [label="targetChainId"]
+            attestationRegistrationSectionSourceToken [label="sourceToken"]
+            attestationRegistrationSectionSourceWalletAdapter [label="sourceWalletAdapter"]
+            attestationRegistrationSectionAttestationTx [label="attestationTx"]
+            attestationRegistrationSectionRegistrationTx [label="registrationTx"]
+            attestationRegistrationSectionSourceWalletAdapter -> walletSelectionButtonSourceWalletAdapter
+        }
+
+        subgraph clusterSolanaAssociatedAccountCreator {
+            label="SolanaAssociatedAccountCreator"
+            solanaAssociatedAccountCreatorSolanaAssociatedAccountData [label="solanaAssociatedAccountData"]
+            solanaAssociatedAccountCreatorTargetAsset [label="targetAsset"]
+            solanaAssociatedAccountCreatorTargetChainId [label="targetChainId"]
+            solanaAssociatedAccountCreatorTargetWallet [label="targetWallet"]
+            solanaAssociatedAccountCreatorSourceWalletAdapter [label="sourceWalletAdapter"]
+            solanaAssociatedAccountCreatorSourceWalletAdapter -> walletSelectionButtonSourceWalletAdapter
+        }
+
+        subgraph clusterTokenBridgeSettingsButton {
+            label="TokenBridgeSettingsButton"
+            tokenBridgeSettingsButtonRelayerData [label="relayerData"]
+            tokenBridgeSettingsButtonIsVisible [label="isVisible"]
+            tokenBridgeSettingsButtonRelayerData -> tokenBridgeSettingsModalRelayerData
+            tokenBridgeSettingsButtonIsVisible -> tokenBridgeSettingsModalIsVisible
+
+            subgraph clusterTokenBridgeSettingsModal {
+                label="TokenBridgeSettingsModal"
+                tokenBridgeSettingsModalRelayerData [label="relayerData"]
+                tokenBridgeSettingsModalIsVisible [label="isVisible"]
+            }
+        }
+    }
+}
