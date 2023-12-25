@@ -22,7 +22,6 @@ import {
 import {
   ACA_ADDRESS,
   ACA_DECIMALS,
-  ASSET_SERVICE_GET_TOKENS_URL,
   BLOCKSCOUT_GET_TOKENS_URL,
   CELO_ADDRESS,
   CELO_DECIMALS,
@@ -256,13 +255,8 @@ export async function getParsedTokenAccountFromCovalent(options: {
   includeTokens?: TokenCacheData[];
 }): Promise<ReturnType<typeof getTokenFromTokenContracts>> {
   const { chainId, walletAddress, isNFT, includeTokens } = options;
-  let url = ASSET_SERVICE_GET_TOKENS_URL(chainId, walletAddress, isNFT);
+  let url = COVALENT_GET_TOKENS_URL(chainId, walletAddress, isNFT);
   let getAccounts = getEthereumAccountsCovalent;
-
-  if (!url) {
-    url = COVALENT_GET_TOKENS_URL(chainId, walletAddress, isNFT);
-    getAccounts = getEthereumAccountsCovalent;
-  }
 
   if (!url) {
     url = BLOCKSCOUT_GET_TOKENS_URL(chainId, walletAddress);

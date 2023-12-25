@@ -868,26 +868,6 @@ export const getTokenBridgeAddressForChain = (chainId: CarrierChainId) =>
   ].token_bridge || '';
 
 export const COVALENT_API_KEY = process.env.COVALENT_KEY ? process.env.COVALENT_KEY : '';
-export const ASSET_SERVICE_KEY = process.env.ASSET_SERVICE_KEY ? process.env.ASSET_SERVICE_KEY : '';
-
-// we just use asset service on staging test env, don't use it on production env.
-// and for now it just support the eth goerli
-export const ASSET_SERVICE_GET_TOKENS_URL = (
-  chainId: CarrierChainId,
-  walletAddress: string,
-  nft?: boolean,
-  noNftMetadata?: boolean,
-) => {
-  if (chainId === CHAIN_ID_ETH && CLUSTER !== 'mainnet' && ASSET_SERVICE_KEY) {
-    const evmChainId = wormholeChainToEvmChain[chainId];
-
-    return evmChainId
-      ? `https://asset-indexer.ata.network/v1/${evmChainId}/address/${walletAddress}/balances_v2/?key=${ASSET_SERVICE_KEY}${
-          nft ? '&nft=true' : ''
-        }${noNftMetadata ? '&no-nft-fetch=true' : ''}`
-      : '';
-  }
-};
 
 export const COVALENT_GET_TOKENS_URL = (
   chainId: CarrierChainId,
