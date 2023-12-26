@@ -76,6 +76,10 @@ export function useTransaction(options: { chainId?: CarrierChainId; txHash?: str
               if (transactionStatus === TransactionStatus.Successful) {
                 const transaction = await getSolanaTransaction({ txHash });
 
+                if (!transaction) {
+                  throw errorNeedRetry;
+                }
+
                 txn = transaction || undefined;
               } else if (transactionStatus === TransactionStatus.Pending) {
                 throw errorNeedRetry;

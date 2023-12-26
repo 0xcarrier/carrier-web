@@ -197,7 +197,7 @@ export const METAMASK_CHAIN_PARAMETERS: {
     chainId: '0x4e454152',
     chainName: 'Aurora Mainnet',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: ['https://mainnet.aurora.dev'],
+    rpcUrls: ['https://1rpc.io/aurora'],
     blockExplorerUrls: ['https://aurorascan.dev'],
   },
   1313161555: {
