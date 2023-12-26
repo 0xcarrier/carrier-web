@@ -45,7 +45,7 @@ jobs:
         id: deploy
         uses: dswistowski/surge-sh-action@v1
         with:
-          domain: "carrier.so"
+          domain: "www.carrier.so"
           project: "dist"
           login: ${{ vars.SURGE_LOGIN }}
           token: ${{ secrets.SURGE_TOKEN }}
