@@ -120,10 +120,12 @@ Redeem USDC and tBTC on the supported target network will get the native token (
 
 ### USDC CCTP supported networks:
 
-- [Ethereum](https://etherscan.io/address/0xAaDA05BD399372f0b0463744C09113c137636f6a)
-- [Avalanche](https://snowtrace.io/address/0x09fb06a271faff70a651047395aaeb6265265f13)
-- [Arbitrum](https://arbiscan.io/address/0x2703483b1a5a7c577e8680de9df8be03c6f30e3c)
-- [Optimism](https://optimistic.etherscan.io/address/0x2703483B1a5a7c577e8680de9Df8Be03c6f30e3c)
+- [Ethereum](https://etherscan.io/address/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48)
+- [Avalanche](https://snowtrace.io/address/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E)
+- [Arbitrum](https://arbiscan.io/address/0xaf88d065e77c8cC2239327C5EDb3A432268e5831)
+- [Optimism](https://optimistic.etherscan.io/address/0x0b2c639c533813f4aa9d7837caf62653d097ff85)
+- [Base](https://basescan.org/address/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
+- [Polygon](https://polygonscan.com/address/0x3c499c542cef5e3811e1192ce70d8cc03d5c3359)
 
 ### tBTC supported network:
 
