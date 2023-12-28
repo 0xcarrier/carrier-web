@@ -18,6 +18,7 @@ import { Sdk } from '@moonbeam-network/xcm-sdk';
 import { ConfigService } from '@moonbeam-network/xcm-config';
 import { assetsMap, chainsMap, getChainsConfigMap } from './xcm-configs';
 import { getEvmProviderWithWormholeChainId } from '../../../utils/web3Utils';
+import { checkSrcAndDestChain } from '../../../utils/ethereum';
 
 export interface TransferFromPolkadotByXCMData {
   signer: Signer;
@@ -55,6 +56,9 @@ export async function transferFromPolkadotByXCM(data: TransferFromPolkadotByXCMD
     chainId,
     randomXCMFee,
   });
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const transferAmountParsed = ethers.utils.parseUnits(amount, decimals);
   const recipientAddressHex = isAccountKey20(recipientChain)
     ? recipientAddress

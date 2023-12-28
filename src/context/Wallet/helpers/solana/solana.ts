@@ -82,6 +82,7 @@ import {
 import { getTBTCAddressForChain, getTBTCGatewayForChain, getWtBTCAddressForChain } from '../../../../utils/tbtc';
 import { PostedVaaData, derivePostedVaaKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
 import { getAccountData } from '@certusone/wormhole-sdk/lib/cjs/solana';
+import { checkSrcAndDestChain } from '../../../../utils/ethereum';
 
 export type SignSolTransactionData = {
   connection?: Connection;
@@ -180,6 +181,8 @@ export async function transferSolNative(data: TransferSolNativeData) {
   if (!publicKey) {
     throw errorGettingAccountPubKey;
   }
+
+  checkSrcAndDestChain(CHAIN_ID_SOLANA, recipientChain);
 
   const connection = getSolanaConnection();
   const baseAmountParsed = parseUnits(amount, decimals);
@@ -318,6 +321,8 @@ export async function transferSolToken(data: TransferSolTokenData) {
     throw errorGettingAccountPubKey;
   }
 
+  checkSrcAndDestChain(CHAIN_ID_SOLANA, recipientChain);
+
   const connection = getSolanaConnection();
   const baseAmountParsed = parseUnits(amount, decimals);
   const feeParsed = relayerFee || ethers.BigNumber.from(0);
@@ -364,6 +369,8 @@ export async function transferSolTbtc(data: TransferSolTBTCData) {
   if (!publicKey) {
     throw errorGettingAccountPubKey;
   }
+
+  checkSrcAndDestChain(CHAIN_ID_SOLANA, recipientChain);
 
   const connection = getSolanaConnection();
   const baseAmountParsed = parseUnits(amount, decimals);
@@ -480,6 +487,8 @@ export async function transferSolNFT(data: TransferSolNFTData) {
   if (!publicKey) {
     throw errorGettingAccountPubKey;
   }
+
+  checkSrcAndDestChain(CHAIN_ID_SOLANA, recipientChain);
 
   const connection = getSolanaConnection();
   const splParsedTokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
@@ -920,6 +929,8 @@ export async function transferSolTokenByMRL(data: TransferSolTokenByMRLData) {
   if (!publicKey) {
     throw errorGettingAccountPubKey;
   }
+
+  checkSrcAndDestChain(CHAIN_ID_SOLANA, recipientChain);
 
   const connection = getSolanaConnection();
   const baseAmountParsed = parseUnits(amount, decimals);
