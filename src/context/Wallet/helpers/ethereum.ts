@@ -60,6 +60,7 @@ import { ConfigService } from '@moonbeam-network/xcm-config';
 import { chainsMap, assetsMap, getChainsConfigMap } from './xcm-configs';
 import { CCTPConfigs, carrierChainIdCCTPDomainMap, cctpSDK } from '../../../utils/cctp';
 import wormholeCCTPIntegrationABI from '../../../abis/WormholeCCTPIntegration.json';
+import { checkSrcAndDestChain } from '../../../utils/ethereum';
 
 export const errorChainNotSupported = new Error('current chain is not supported');
 export const errorWalletNotExisted = new Error('Please install wallet');
@@ -133,6 +134,9 @@ export interface TransferEthNativeData {
 
 export async function transferEthNative(data: TransferEthNativeData) {
   const { signer, decimals, amount, recipientChain, recipientAddress, chainId, relayerFee } = data;
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const baseAmountParsed = ethers.utils.parseUnits(amount, decimals);
   const feeParsed = relayerFee || ethers.BigNumber.from(0);
   const transferAmountParsed = baseAmountParsed.add(feeParsed);
@@ -170,6 +174,9 @@ export interface TransferEthTokenData {
 
 export async function transferEthToken(data: TransferEthTokenData) {
   const { signer, tokenAddress, decimals, amount, recipientChain, recipientAddress, chainId, relayerFee } = data;
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const baseAmountParsed = ethers.utils.parseUnits(amount, decimals);
   const feeParsed = relayerFee || ethers.BigNumber.from(0);
   const transferAmountParsed = baseAmountParsed.add(feeParsed);
@@ -204,6 +211,9 @@ export interface TransferEthNFTData {
 
 export async function transferEthNFT(data: TransferEthNFTData) {
   const { signer, tokenAddress, tokenId, recipientChain, recipientAddress, chainId } = data;
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   // Klaytn requires specifying gasPrice
   const overrides = chainId === CHAIN_ID_KLAYTN ? { gasPrice: (await signer.getGasPrice()).toString() } : {};
   const nftBridgeAddress = getNFTBridgeAddressForChain(chainId);
@@ -235,6 +245,9 @@ export interface TransferEthUSDCData {
 
 export async function transferEthUSDC(data: TransferEthUSDCData) {
   const { chainId, signer, amount, decimals, recipientChain, recipientAddress } = data;
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const sourceDomain = carrierChainIdCCTPDomainMap[chainId];
   const destinationDomain = carrierChainIdCCTPDomainMap[recipientChain];
   const amountParsed = ethers.utils.parseUnits(amount, decimals);
@@ -269,6 +282,8 @@ export async function transferEthTBTC({
   recipientChain,
   recipientAddress,
 }: TransferEthTBTCData) {
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const amountParsed = ethers.utils.parseUnits(amount, decimals);
   const nonce = createNonce();
   const gatewayContract = getTBTCGatewayForChain(chainId);
@@ -598,6 +613,9 @@ export async function transferEthTokenByXCM(data: TransferEthTokenByMRLData) {
     chainId,
     randomXCMFee,
   } = data;
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const baseAmountParsed = ethers.utils.parseUnits(amount, decimals);
   const amountParsed = baseAmountParsed.add(MRLFeeParsed || ethers.BigNumber.from(0));
   const recipientAddressHex = isAccountKey20(recipientChain)
@@ -691,6 +709,9 @@ export async function transferEthTokenByXCM(data: TransferEthTokenByMRLData) {
 
 export async function transferEthTokenByMRL(data: TransferEthTokenByMRLData) {
   const { signer, tokenAddress, decimals, amount, recipientChain, recipientAddress, MRLFeeParsed, chainId } = data;
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const baseAmountParsed = ethers.utils.parseUnits(amount, decimals);
   const amountParsed = baseAmountParsed.add(MRLFeeParsed || ethers.BigNumber.from(0));
 
@@ -743,6 +764,9 @@ export interface TransferEthNativeByMRLData {
 
 export async function transferEthNativeByMRL(data: TransferEthNativeByMRLData) {
   const { signer, decimals, amount, recipientChain, recipientAddress, MRLFeeParsed, chainId } = data;
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const baseAmountParsed = ethers.utils.parseUnits(amount, decimals);
   const amountParsed = baseAmountParsed.add(MRLFeeParsed || ethers.BigNumber.from(0));
 

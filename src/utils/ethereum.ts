@@ -69,3 +69,9 @@ export function parseLogs(options: { iface: Interface; logs: Array<any>; methodN
     }
   }
 }
+
+export function checkSrcAndDestChain(sourceChainId: CarrierChainId, destinationChain: CarrierChainId) {
+  if (sourceChainId === destinationChain) {
+    throw new Error(`source chain and destination chain can't be the same. chain ID: ${sourceChainId}`);
+  }
+}

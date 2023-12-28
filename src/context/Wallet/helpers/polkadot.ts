@@ -33,6 +33,7 @@ import {
 } from '../../../utils/polkadot';
 import { PolkachainToken, PolkachainTokens, PolkachainXcGLMR, XcGLMR } from '../../../utils/tokenData/mrl';
 import { getExtrinsicHashByBlockHashAndMessageHash, transferFromPolkadotByXCM } from './polkadot-xcm';
+import { checkSrcAndDestChain } from '../../../utils/ethereum';
 
 interface SignPolkadotTransactionData {
   chainId: CarrierChainId;
@@ -210,6 +211,9 @@ export async function transferFromPolkadotByMRL(data: TransferPolkadotByMRLData)
     chainId,
     relayerFeeParsed: relayerFeeParsed?.toString(),
   });
+
+  checkSrcAndDestChain(chainId, recipientChain);
+
   const baseAmountParsed = ethers.utils.parseUnits(amount, decimals);
   const feeParsed = relayerFeeParsed || ethers.BigNumber.from(0);
   const transferAmountParsed = baseAmountParsed.add(feeParsed);
