@@ -60,6 +60,7 @@ import { getCluster } from './env';
 import { isCarrierEVMChain, isCarrierPolkaChain } from './web3Utils';
 import { ParachainBridgeType, parseParachainTxHash } from './polkadot';
 import { ethers } from 'ethers';
+import random from 'lodash/random';
 
 export enum Polkachain {
   MoonbaseBeta = 888,
@@ -867,7 +868,13 @@ export const getTokenBridgeAddressForChain = (chainId: CarrierChainId) =>
     coalesceChainName(chainId as WormholeChainId)
   ].token_bridge || '';
 
-export const COVALENT_API_KEY = process.env.COVALENT_KEY ? process.env.COVALENT_KEY : '';
+export const COVALENT_API_KEY_ARRAY = process.env.COVALENT_KEY ? process.env.COVALENT_KEY.split(',') : [];
+
+function getCovalentKey() {
+  const randomIndex = random(0, COVALENT_API_KEY_ARRAY.length - 1, false);
+
+  return COVALENT_API_KEY_ARRAY[randomIndex];
+}
 
 export const COVALENT_GET_TOKENS_URL = (
   chainId: CarrierChainId,
@@ -894,7 +901,7 @@ export const COVALENT_GET_TOKENS_URL = (
 
   // https://www.covalenthq.com/docs/api/#get-/v1/{chain_id}/address/{address}/balances_v2/
   return covalentChainNum
-    ? `https://api.covalenthq.com/v1/${covalentChainNum}/address/${walletAddress}/balances_v2/?key=${COVALENT_API_KEY}${
+    ? `https://api.covalenthq.com/v1/${covalentChainNum}/address/${walletAddress}/balances_v2/?key=${getCovalentKey()}${
         nft ? '&nft=true' : ''
       }${noNftMetadata ? '&no-nft-fetch=true' : ''}`
     : '';
