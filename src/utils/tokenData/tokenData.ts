@@ -111,6 +111,11 @@ async function getEthereumAccountsCovalent(
   const output = [] as CovalentData[];
   const resp = await fetch(url);
   const respJson = await resp.json();
+
+  if (resp.status !== 200) {
+    throw new Error(`Covalent API is failed with status: ${resp.status}`);
+  }
+
   const tokens = respJson.data?.items;
 
   if (tokens instanceof Array && tokens.length) {
@@ -253,9 +258,10 @@ export async function getParsedTokenAccountFromCovalent(options: {
   walletAddress: string;
   isNFT: boolean;
   includeTokens?: TokenCacheData[];
+  excludeKeys?: string[];
 }): Promise<ReturnType<typeof getTokenFromTokenContracts>> {
-  const { chainId, walletAddress, isNFT, includeTokens } = options;
-  let url = COVALENT_GET_TOKENS_URL(chainId, walletAddress, isNFT);
+  const { chainId, walletAddress, isNFT, includeTokens, excludeKeys } = options;
+  let url = COVALENT_GET_TOKENS_URL({ chainId, walletAddress, nft: isNFT, excludeKeys });
   let getAccounts = getEthereumAccountsCovalent;
 
   if (!url) {
@@ -263,7 +269,24 @@ export async function getParsedTokenAccountFromCovalent(options: {
     getAccounts = getEthereumAccountsBlockscout;
   }
 
-  const accounts = url ? await getAccounts(url, isNFT, chainId) : undefined;
+  let accounts: CovalentData[] | undefined;
+
+  if (url) {
+    try {
+      accounts = await getAccounts(url.url, isNFT, chainId);
+    } catch (e) {
+      console.error('Get Covalent data error', e);
+
+      return getParsedTokenAccountFromCovalent({
+        chainId,
+        walletAddress,
+        isNFT,
+        includeTokens,
+        excludeKeys: (excludeKeys || []).concat(url.key),
+      });
+    }
+  }
+
   const contracts: { contractAddress: string; tokenIds?: string[] }[] | undefined = accounts
     ? isNFT
       ? accounts.map((item) => {

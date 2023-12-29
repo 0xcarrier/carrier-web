@@ -870,19 +870,24 @@ export const getTokenBridgeAddressForChain = (chainId: CarrierChainId) =>
 
 export const COVALENT_API_KEY_ARRAY = process.env.COVALENT_KEY ? process.env.COVALENT_KEY.split(',') : [];
 
-function getCovalentKey() {
-  const randomIndex = random(0, COVALENT_API_KEY_ARRAY.length - 1, false);
+function getCovalentKey(excludeKeys?: string[]) {
+  const filteredKeys = COVALENT_API_KEY_ARRAY.filter((item) => (excludeKeys ? !excludeKeys.includes(item) : true));
 
-  return COVALENT_API_KEY_ARRAY[randomIndex];
+  if (filteredKeys.length > 0) {
+    const randomIndex = random(0, filteredKeys.length - 1, false);
+
+    return filteredKeys[randomIndex];
+  }
 }
 
-export const COVALENT_GET_TOKENS_URL = (
-  chainId: CarrierChainId,
-  walletAddress: string,
-  nft?: boolean,
-  noNftMetadata?: boolean,
-) => {
-  let covalentChainNum = '';
+export function COVALENT_GET_TOKENS_URL(options: {
+  chainId: CarrierChainId;
+  walletAddress: string;
+  nft?: boolean;
+  noNftMetadata?: boolean;
+  excludeKeys?: string[];
+}) {
+  const { chainId, walletAddress, nft, noNftMetadata, excludeKeys } = options;
 
   if (
     chainId === CHAIN_ID_SOLANA ||
@@ -896,16 +901,20 @@ export const COVALENT_GET_TOKENS_URL = (
     // networks; not supported by covalent
     // don't need to get the real chain id
   } else if (isCarrierEVMChain(chainId)) {
-    covalentChainNum = wormholeChainToEvmChain[chainId]?.toString() || '';
-  }
+    const covalentChainNum = wormholeChainToEvmChain[chainId]?.toString();
+    const covalentKey = getCovalentKey(excludeKeys);
 
-  // https://www.covalenthq.com/docs/api/#get-/v1/{chain_id}/address/{address}/balances_v2/
-  return covalentChainNum
-    ? `https://api.covalenthq.com/v1/${covalentChainNum}/address/${walletAddress}/balances_v2/?key=${getCovalentKey()}${
-        nft ? '&nft=true' : ''
-      }${noNftMetadata ? '&no-nft-fetch=true' : ''}`
-    : '';
-};
+    // https://www.covalenthq.com/docs/api/#get-/v1/{chain_id}/address/{address}/balances_v2/
+    if (covalentChainNum != null && covalentKey != null) {
+      return {
+        key: covalentKey,
+        url: `https://api.covalenthq.com/v1/${covalentChainNum}/address/${walletAddress}/balances_v2/?key=${covalentKey}${
+          nft ? '&nft=true' : ''
+        }${noNftMetadata ? '&no-nft-fetch=true' : ''}`,
+      };
+    }
+  }
+}
 
 export const BLOCKSCOUT_GET_TOKENS_URL = (chainId: CarrierChainId, walletAddress: string) => {
   const baseUrl =
@@ -940,7 +949,10 @@ export const BLOCKSCOUT_GET_TOKENS_URL = (chainId: CarrierChainId, walletAddress
         //   ? 'https://alfajores-blockscout.celo-testnet.org'
         //   : ''
         '';
-  return baseUrl ? `${baseUrl}/api?module=account&action=tokenlist&address=${walletAddress}` : '';
+
+  if (baseUrl) {
+    return { key: '', url: `${baseUrl}/api?module=account&action=tokenlist&address=${walletAddress}` };
+  }
 };
 
 export const TVL_URL = 'https://europe-west3-wormhole-315720.cloudfunctions.net/mainnet-notionaltvl';
