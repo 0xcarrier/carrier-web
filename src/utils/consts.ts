@@ -1205,7 +1205,7 @@ export const RPC_URLS: CHAIN_MAPPING = {
     [CHAIN_ID_AVAX]: 'https://ava-mainnet.public.blastapi.io/ext/bc/C/rpc',
     [CHAIN_ID_OASIS]: 'https://emerald.oasis.dev',
     [CHAIN_ID_AURORA]: 'https://mainnet.aurora.dev',
-    [CHAIN_ID_FANTOM]: 'https://rpc2.fantom.network',
+    [CHAIN_ID_FANTOM]: 'https://rpcapi.fantom.network',
     [CHAIN_ID_KARURA]: 'https://rpc.evm.karura.network',
     [CHAIN_ID_ACALA]: 'https://eth-rpc-acala.aca-api.network',
     [CHAIN_ID_KLAYTN]: 'https://klaytn.blockpi.network/v1/rpc/public',
