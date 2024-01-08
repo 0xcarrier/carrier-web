@@ -6,11 +6,6 @@ import {
   ethers_contracts,
   createNonce,
   CHAIN_ID_MOONBEAM,
-  CHAIN_ID_ETH,
-  CHAIN_ID_AVAX,
-  CHAIN_ID_ARBITRUM,
-  CHAIN_ID_OPTIMISM,
-  CHAIN_ID_BASE,
 } from '@certusone/wormhole-sdk';
 import { ethers } from 'ethers';
 import {
