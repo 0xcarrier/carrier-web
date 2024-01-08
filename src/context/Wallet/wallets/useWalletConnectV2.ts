@@ -12,6 +12,7 @@ import {
   CHAINS,
   CLUSTER,
   CarrierChainId,
+  ETH_NETWORK_CHAIN_ID,
   RPC_URLS,
   evmChainToWormholeChain,
   wormholeChainToEvmChain,
@@ -66,6 +67,7 @@ import {
   WalletState,
 } from '../types';
 import { isCarrierEVMChain } from '../../../utils/web3Utils';
+import { useData } from '../../../hooks/useData';
 
 const PROJECT_ID = process.env.WALLET_CONNECT_PROJECT_ID;
 const WALLET_NAME = 'WalletConnect V2';
@@ -87,22 +89,25 @@ export function useWalletConnectV2(): WalletInterface {
   const [signer, setSigner] = useState<Signer | undefined>();
   const [walletAddress, setWalletAddress] = useState<string | undefined>();
 
+  const supportedChains = useData(async () => {
+    const supportedChainsResp = await fetch(
+      `https://explorer-api.walletconnect.com/v3/chains?projectId=${PROJECT_ID}&namespaces=eip155`,
+    );
+    const supportedChainsJSON = await supportedChainsResp.json();
+    return Object.keys(supportedChainsJSON.chains).map((item) => parseInt(item.replace('eip155:', '')));
+  });
+
   const availableChainIds = useMemo(() => {
-    return CHAINS.filter((chain) => isCarrierEVMChain(chain.id)).map((item) => item.id);
-  }, []);
+    return CHAINS.filter(
+      (chain) => isCarrierEVMChain(chain.id) && supportedChains.data?.includes(wormholeChainToEvmChain[chain.id]),
+    ).map((item) => item.id);
+  }, [supportedChains]);
 
   const customProperties = useMemo(() => {
     return { signer, web3Provider, evmChainId };
   }, [signer, web3Provider, evmChainId]);
 
-  const disconnect = useCallback(async () => {
-    if (!clientProvider) {
-      return setGeneralError(new Error("WalletConnect client's provider is not initialized yet."));
-    }
-    setState(WalletState.DISCONNECTING);
-
-    clientProvider.disconnect();
-
+  const _disconnect = useCallback(() => {
     setChainId(undefined);
     setSigner(undefined);
     setWalletAddress(undefined);
@@ -113,7 +118,25 @@ export function useWalletConnectV2(): WalletInterface {
     setNetworkError(undefined);
 
     setState(WalletState.DISCONNECTED);
-  }, [clientProvider]);
+  }, [
+    setChainId,
+    setSigner,
+    setWalletAddress,
+    setClientProvider,
+    setWeb3Provider,
+    setGeneralError,
+    setAccountError,
+    setNetworkError,
+    setState,
+  ]);
+
+  const disconnect = useCallback(async () => {
+    setState(WalletState.DISCONNECTING);
+
+    clientProvider?.disconnect();
+
+    _disconnect();
+  }, [clientProvider, setState, _disconnect]);
 
   const connect: WalletInterface['connect'] = useCallback(
     async (options) => {
@@ -136,8 +159,16 @@ export function useWalletConnectV2(): WalletInterface {
         try {
           const evmChains = availableChainIds
             .sort((a, b) => (a === expectedChainId ? -1 : b === expectedChainId ? 1 : 0))
-            .map((wormholeChainId) => wormholeChainToEvmChain[wormholeChainId])
-            .filter((item) => item != null);
+            .map((wormholeChainId) => {
+              const evmChainId = wormholeChainToEvmChain[wormholeChainId];
+              if (supportedChains.data?.includes(evmChainId)) {
+                return evmChainId;
+              }
+              return undefined;
+            })
+            .filter((item) => item != null) as number[];
+          const chains = evmChains.filter((item) => item === ETH_NETWORK_CHAIN_ID);
+          const optionalChains = evmChains.filter((item) => item !== ETH_NETWORK_CHAIN_ID);
           const rpcMapByEVMChain = evmChains.reduce(
             (map, chainId) => ({ ...map, [chainId]: RPC_URLS[CLUSTER][evmChainToWormholeChain[chainId]] }),
             {},
@@ -145,16 +176,23 @@ export function useWalletConnectV2(): WalletInterface {
 
           const clientProvider = await WalletConnectEthProvider.init({
             projectId: PROJECT_ID,
-            chains: evmChains,
+            chains,
+            optionalChains,
             rpcMap: rpcMapByEVMChain,
             events: ['chainChanged', 'accountsChanged', 'session_delete', 'session_event'],
             showQrModal: true,
           });
 
+          const disconnectInternally = () => {
+            _disconnect();
+
+            clientProvider.disconnect();
+          };
+
           clientProvider.on('session_delete', (e) => {
             console.log('session_delete', e);
 
-            disconnect();
+            disconnectInternally();
           });
 
           clientProvider.on('session_event', (e) => {
@@ -205,7 +243,7 @@ export function useWalletConnectV2(): WalletInterface {
 
             setState(WalletState.CONNECTED);
           } else {
-            await disconnect();
+            disconnectInternally();
           }
 
           try {
@@ -262,18 +300,18 @@ export function useWalletConnectV2(): WalletInterface {
                     setAccountError(errorGettingWalletAddress);
                   });
               } else {
-                disconnect();
+                disconnectInternally();
               }
             });
           }
         } catch (e: any) {
           // disconnect and clear state when error happens
-          await disconnect();
+          _disconnect();
           throw e;
         }
       }
     },
-    [availableChainIds, chainId, disconnect, networkError, state, web3Provider],
+    [availableChainIds, supportedChains, chainId, _disconnect, networkError, state, web3Provider],
   );
 
   const sendTransaction = useCallback(
