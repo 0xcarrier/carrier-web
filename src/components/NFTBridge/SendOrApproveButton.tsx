@@ -23,6 +23,7 @@ interface Props {
   targetAssetData: DataResult<TargetAsset | undefined>;
   networkError: Error | undefined;
   tokenError: Error | undefined;
+  isWalletBlocked: boolean | undefined;
   onApprove: () => void;
   onTransferData: (transferData: SendTokenData) => void;
 }
@@ -37,6 +38,7 @@ export const SendOrApproveButton: React.SFC<Props> = ({
   targetAssetData,
   networkError,
   tokenError,
+  isWalletBlocked,
   onApprove,
   onTransferData,
 }) => {
@@ -49,6 +51,7 @@ export const SendOrApproveButton: React.SFC<Props> = ({
           sourceToken={sourceToken}
           networkError={networkError}
           tokenError={tokenError}
+          isWalletBlocked={isWalletBlocked}
           onApprove={onApprove}
         />
       ) : (
@@ -61,6 +64,7 @@ export const SendOrApproveButton: React.SFC<Props> = ({
           targetAssetData={targetAssetData}
           networkError={networkError}
           tokenError={tokenError}
+          isWalletBlocked={isWalletBlocked}
           onTransferData={onTransferData}
         />
       )}
@@ -74,6 +78,7 @@ interface ApproveButtonProps {
   sourceToken: TokenData | undefined;
   networkError: Error | undefined;
   tokenError: Error | undefined;
+  isWalletBlocked: boolean | undefined;
   onApprove: () => void;
 }
 
@@ -83,11 +88,12 @@ export const ApproveButton: React.SFC<ApproveButtonProps> = ({
   sourceToken,
   networkError,
   tokenError,
+  isWalletBlocked,
   onApprove,
 }) => {
   const isLoading = approvalData.loading || sourceWallet.wallet?.approveNFTResult.loading;
   const isOwner = sourceToken && sourceToken.uiAmount > 0 ? true : false;
-  const isReady = approvalData && sourceToken && isOwner && !networkError && !tokenError;
+  const isReady = approvalData && sourceToken && isOwner && !networkError && !tokenError && !isWalletBlocked;
   const isDisabled = !isReady || isLoading;
 
   return (
@@ -123,6 +129,7 @@ interface SendButtonProps {
   targetAssetData: DataResult<TargetAsset | undefined>;
   networkError: Error | undefined;
   tokenError: Error | undefined;
+  isWalletBlocked: boolean | undefined;
   onTransferData: (transferData: SendTokenData) => void;
 }
 
@@ -135,6 +142,7 @@ export const SendButton: React.SFC<SendButtonProps> = ({
   targetAssetData,
   networkError,
   tokenError,
+  isWalletBlocked,
   onTransferData,
 }) => {
   const isLoading = sourceWallet.wallet?.transferNFTResult?.loading;
@@ -156,7 +164,8 @@ export const SendButton: React.SFC<SendButtonProps> = ({
     isAssociatedAccountReady &&
     isOwner &&
     !networkError &&
-    !tokenError;
+    !tokenError &&
+    !isWalletBlocked;
 
   const isDisabled = !isReady || isLoading;
 

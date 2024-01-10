@@ -39,6 +39,7 @@ import { TransferNFTData } from '../../context/Wallet/types';
 import { isCarrierEVMChain, tryCarrierNativeToUint8Array } from '../../utils/web3Utils';
 import { useTokenError } from '../../hooks/useTokenError';
 import { errorNetworksIsDisabled, errorNetworksIsNotCompatible, useNetworkError } from '../../hooks/useNetworkError';
+import { useWalletBlackList } from '../../hooks/useWalletBlackList';
 
 interface IProps {}
 
@@ -66,6 +67,7 @@ export const NFTBridge: React.SFC<IProps> = () => {
   const sourceWallet = useWallet();
   const targetWallet = useTargetWallet();
   const networkError = useNetworkError({ sourceChainId: sourceWallet.expectedChainId, targetChainId });
+  const walletBlacklist = useWalletBlackList({ walletAddress: sourceWallet.wallet?.walletAddress });
   const sourceTokens = useTokens({
     chainId: sourceWallet.wallet?.chainId,
     walletAddress: sourceWallet.wallet?.walletAddress,
@@ -241,6 +243,10 @@ export const NFTBridge: React.SFC<IProps> = () => {
           />
         ) : null}
 
+        {walletBlacklist.data ? (
+          <InfoBanner className={{ container: styleInfoBanner }} type="error" message="Your wallet is blocked!" />
+        ) : null}
+
         <div className={styleChainSelectContainer}>
           <div className={styleBlock}>
             <SourceWalletSelector
@@ -371,6 +377,7 @@ export const NFTBridge: React.SFC<IProps> = () => {
           targetWallet={targetWallet}
           networkError={networkError}
           tokenError={tokenError}
+          isWalletBlocked={walletBlacklist.data}
           onApprove={() => {
             if (sourceWallet.wallet && sourceTokenData.sourceToken && sourceWallet.expectedChainId) {
               sourceWallet.wallet.approveNFT({

@@ -28,6 +28,7 @@ interface Props {
   isUsingRelayer: boolean;
   networkError: Error | undefined;
   tokenError: Error | undefined;
+  isWalletBlocked: boolean | undefined;
   onApproveAmount: (amount: ethers.BigNumber) => void;
   onTransferData: (transferData: SendTokenData) => void;
 }
@@ -45,6 +46,7 @@ export const SendOrApproveButton: React.SFC<Props> = ({
   isUsingRelayer,
   networkError,
   tokenError,
+  isWalletBlocked,
   onApproveAmount,
   onTransferData,
 }) => {
@@ -63,6 +65,7 @@ export const SendOrApproveButton: React.SFC<Props> = ({
           isUsingRelayer={isUsingRelayer}
           networkError={networkError}
           tokenError={tokenError}
+          isWalletBlocked={isWalletBlocked}
           onApproveAmount={onApproveAmount}
         />
       ) : (
@@ -78,6 +81,7 @@ export const SendOrApproveButton: React.SFC<Props> = ({
           isUsingRelayer={isUsingRelayer}
           networkError={networkError}
           tokenError={tokenError}
+          isWalletBlocked={isWalletBlocked}
           onTransferData={onTransferData}
         />
       )}
@@ -97,6 +101,7 @@ interface ApproveButtonProps {
   isUsingRelayer: boolean;
   networkError: Error | undefined;
   tokenError: Error | undefined;
+  isWalletBlocked: boolean | undefined;
   onApproveAmount: (amount: ethers.BigNumber) => void;
 }
 
@@ -112,6 +117,7 @@ export const ApproveButton: React.SFC<ApproveButtonProps> = ({
   isUsingRelayer,
   networkError,
   tokenError,
+  isWalletBlocked,
   onApproveAmount,
 }) => {
   const providerFee =
@@ -139,7 +145,8 @@ export const ApproveButton: React.SFC<ApproveButtonProps> = ({
     !bridgeLimitData.data?.limitExceeded &&
     (isUsingRelayer ? providerFeeData?.data?.relayable : true) &&
     !networkError &&
-    !tokenError;
+    !tokenError &&
+    !isWalletBlocked;
   const isDisabled = !isReady || isLoading;
 
   return (
@@ -186,6 +193,7 @@ interface SendButtonProps {
   isUsingRelayer: boolean;
   networkError: Error | undefined;
   tokenError: Error | undefined;
+  isWalletBlocked: boolean | undefined;
   onTransferData: (transferData: SendTokenData) => void;
 }
 
@@ -201,6 +209,7 @@ export const SendButton: React.SFC<SendButtonProps> = ({
   isUsingRelayer,
   networkError,
   tokenError,
+  isWalletBlocked,
   onTransferData,
 }) => {
   const isLoading =
@@ -226,6 +235,7 @@ export const SendButton: React.SFC<SendButtonProps> = ({
     targetAssetData.data.targetChainId &&
     !networkError &&
     !tokenError &&
+    !isWalletBlocked &&
     isRelayerReady;
 
   const isDisabled = !isReady || isLoading;
