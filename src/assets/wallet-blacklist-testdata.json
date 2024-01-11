@@ -1,1 +1,4 @@
-[{ "address": "0xF89304a44Bb7AB92095289f30d33e426AFD4d2eF", "isSanctioned": true }]
+[
+  { "address": "0xF89304a44Bb7AB92095289f30d33e426AFD4d2eF", "isSanctioned": true },
+  { "address": "0x33c9d021C5C158cB584ef491c0C04E73ef21f827", "isSanctioned": true }
+]
