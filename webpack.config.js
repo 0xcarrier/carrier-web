@@ -217,6 +217,10 @@ module.exports = {
           from: path.resolve(__dirname, 'src/assets/testnet-relayer-data.json'),
           to: 'testnet-relayer-data.json',
         },
+        {
+          from: path.resolve(__dirname, 'src/assets/wallet-blacklist-testdata.json'),
+          to: 'wallet-blacklist-testdata.json',
+        },
       ],
     }),
   ].filter(Boolean),
