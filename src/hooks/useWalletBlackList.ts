@@ -17,18 +17,27 @@ export const blockedWallets: string[] =
 
 const memCache: { [walletAddress: string]: boolean } = {};
 
-export function useWalletBlackList(options: { walletAddress?: string }) {
-  const { walletAddress } = options;
+export function useWalletBlackList(options: { sourceWalletAddress?: string; targetWalletAddress?: string }) {
+  const { sourceWalletAddress, targetWalletAddress } = options;
 
-  return useData(
+  return useData<{ isSourceWalletSanctioned: boolean; isTargetWalletSanctioned: boolean } | undefined>(
     async (signal) => {
-      if (walletAddress) {
-        if (blockedWallets.includes(walletAddress)) {
-          return true;
+      if (sourceWalletAddress && targetWalletAddress) {
+        const sourceWalletBlockedByEnvVar = blockedWallets.includes(sourceWalletAddress);
+        const targetWalletBlockedByEnvVar = blockedWallets.includes(targetWalletAddress);
+
+        if (sourceWalletBlockedByEnvVar || targetWalletBlockedByEnvVar) {
+          return {
+            isSourceWalletSanctioned: sourceWalletBlockedByEnvVar,
+            isTargetWalletSanctioned: targetWalletBlockedByEnvVar,
+          };
         }
 
-        if (memCache[walletAddress] != null) {
-          return memCache[walletAddress];
+        const sourceCache = memCache[sourceWalletAddress];
+        const targetCache = memCache[targetWalletAddress];
+
+        if (sourceCache != null && targetCache != null) {
+          return { isSourceWalletSanctioned: sourceCache, isTargetWalletSanctioned: targetCache };
         }
 
         const headers: HeadersInit = {
@@ -43,19 +52,27 @@ export function useWalletBlackList(options: { walletAddress?: string }) {
           signal,
           method: CLUSTER === 'mainnet' ? 'POST' : 'GET',
           headers,
-          body: CLUSTER === 'mainnet' ? JSON.stringify([{ address: walletAddress }]) : undefined,
+          body:
+            CLUSTER === 'mainnet'
+              ? JSON.stringify([{ address: sourceWalletAddress }, { address: targetWalletAddress }])
+              : undefined,
         });
         // DO NOT local cache the result, because it can be tampered with and bypass the checks.
         const respJSON = await resp.json();
-        const isSanctioned = Array.isArray(respJSON)
-          ? respJSON.some((item) => item.address === walletAddress && item.isSanctioned)
+        const isSourceSanctioned = Array.isArray(respJSON)
+          ? respJSON.some((item) => item.address === sourceWalletAddress && item.isSanctioned)
           : false;
 
-        memCache[walletAddress] = isSanctioned;
+        const isTargetSanctioned = Array.isArray(respJSON)
+          ? respJSON.some((item) => item.address === targetWalletAddress && item.isSanctioned)
+          : false;
 
-        return isSanctioned;
+        memCache[sourceWalletAddress] = isSourceSanctioned;
+        memCache[targetWalletAddress] = isTargetSanctioned;
+
+        return { isSourceWalletSanctioned: isSourceSanctioned, isTargetWalletSanctioned: isTargetSanctioned };
       }
     },
-    [walletAddress],
+    [sourceWalletAddress, targetWalletAddress],
   );
 }
