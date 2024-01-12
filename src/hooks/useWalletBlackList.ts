@@ -4,14 +4,8 @@ import { useData } from './useData';
 const BLOCKED_WALLETS = process.env.BLOCKED_WALLETS;
 const TRMLABS_KEY = process.env.TRMLABS_KEY;
 
-export const BLACKLIST_SCREEN_URL =
-  CLUSTER === 'mainnet'
-    ? 'https://api.trmlabs.com/public/v1/sanctions/screening'
-    : CLUSTER === 'testnet'
-    ? process.env.NODE_ENV === 'production'
-      ? '/public/wallet-blacklist-testdata.json'
-      : '/wallet-blacklist-testdata.json'
-    : '';
+export const BLACKLIST_SCREEN_URL = 'https://api.trmlabs.com/public/v1/sanctions/screening';
+
 export const blockedWallets: string[] =
   BLOCKED_WALLETS && typeof BLOCKED_WALLETS === 'string' ? BLOCKED_WALLETS.split(',') : [];
 
