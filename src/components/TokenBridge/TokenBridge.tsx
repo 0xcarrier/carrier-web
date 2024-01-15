@@ -52,6 +52,7 @@ import { useRelayerSettings } from './hooks/useRelayerSettings';
 import { errorNetworksIsDisabled, errorNetworksIsNotCompatible, useNetworkError } from '../../hooks/useNetworkError';
 import { useRandomXCMFee } from './hooks/useRandomXCMFee';
 import { useTokenError } from '../../hooks/useTokenError';
+import { useWalletBlackList } from '../../hooks/useWalletBlackList';
 
 interface IProps {}
 
@@ -80,6 +81,11 @@ export const TokenBridge: React.SFC<IProps> = () => {
   const sourceWallet = useWallet();
   const targetWallet = useTargetWallet();
   const networkError = useNetworkError({ sourceChainId: sourceWallet.expectedChainId, targetChainId });
+  const walletBlacklist = useWalletBlackList({
+    sourceWalletAddress: sourceWallet.wallet?.walletAddress,
+    targetWalletAddress: targetWallet.wallet?.walletAddress,
+  });
+  console.log('walletBlacklist', walletBlacklist);
   const sourceTokens = useTokens({
     chainId: sourceWallet.wallet?.chainId,
     walletAddress: sourceWallet.wallet?.walletAddress,
@@ -370,6 +376,16 @@ export const TokenBridge: React.SFC<IProps> = () => {
           />
         ) : null}
 
+        {walletBlacklist.data?.isSourceWalletSanctioned || walletBlacklist.data?.isTargetWalletSanctioned ? (
+          <InfoBanner
+            className={{ container: styleInfoBanner }}
+            type="error"
+            message={`Your ${
+              walletBlacklist.data.isSourceWalletSanctioned ? 'source wallet' : 'target wallet'
+            } is blocked!`}
+          />
+        ) : null}
+
         <div className={styleChainSelectContainer}>
           <div className={styleBlock}>
             <SourceWalletSelector
@@ -603,6 +619,9 @@ export const TokenBridge: React.SFC<IProps> = () => {
           isUsingRelayer={relayerSettingsData.isUsingRelayer}
           networkError={networkError}
           tokenError={tokenError}
+          isWalletBlocked={
+            walletBlacklist.data?.isSourceWalletSanctioned || walletBlacklist.data?.isTargetWalletSanctioned
+          }
           onApproveAmount={(amount) => {
             if (sourceWallet.wallet && sourceTokenData.sourceToken && sourceWallet.expectedChainId) {
               const cctpNetworkConfigs = getCCTPNetworkConfigs({ sourceChainId, targetChainId });

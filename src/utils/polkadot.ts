@@ -11,7 +11,7 @@ import {
 import { ethers } from 'ethers';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { isCarrierEVMChain, isCarrierPolkaChain } from './web3Utils';
-import { CHAIN_ID_MOONBEAM } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_MOONBEAM, CHAIN_ID_SOLANA } from '@certusone/wormhole-sdk';
 import type { AnyTuple } from '@polkadot/types-codec/types';
 
 const polkadotProviders: { [chainId: number]: ApiPromise } = {};
@@ -314,8 +314,10 @@ export function needToPayMRLFee(sourceChainId: CarrierChainId, targetChainId: Ca
 
 export function needTransferByMRL(sourceChainId: CarrierChainId, targetChainId: CarrierChainId) {
   return (
-    (isCarrierEVMChain(sourceChainId) && sourceChainId !== CHAIN_ID_MOONBEAM && isCarrierPolkaChain(targetChainId)) ||
-    (isCarrierPolkaChain(sourceChainId) && isCarrierEVMChain(targetChainId) && targetChainId !== CHAIN_ID_MOONBEAM)
+    (((isCarrierEVMChain(sourceChainId) && sourceChainId !== CHAIN_ID_MOONBEAM) || sourceChainId === CHAIN_ID_SOLANA) &&
+      isCarrierPolkaChain(targetChainId)) ||
+    (isCarrierPolkaChain(sourceChainId) &&
+      ((isCarrierEVMChain(targetChainId) && targetChainId !== CHAIN_ID_MOONBEAM) || targetChainId === CHAIN_ID_SOLANA))
   );
 }
 
