@@ -229,6 +229,8 @@ export async function transferFromPolkadotByMRL(data: TransferPolkadotByMRLData)
     isParent: true,
   });
 
+  console.log('multilocationDerivativeAccountAddress', multilocationDerivativeAccountAddress);
+
   const sendTokenExtrinsic = parachainAPI.tx.xTokens.transferMultiassets(
     {
       // assets

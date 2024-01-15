@@ -1,4 +1,10 @@
-import { CHAIN_ID_ACALA, CHAIN_ID_ETH, CHAIN_ID_KARURA, CHAIN_ID_MOONBEAM } from '@certusone/wormhole-sdk';
+import {
+  CHAIN_ID_ACALA,
+  CHAIN_ID_ETH,
+  CHAIN_ID_KARURA,
+  CHAIN_ID_MOONBEAM,
+  CHAIN_ID_SOLANA,
+} from '@certusone/wormhole-sdk';
 import { ethers } from 'ethers';
 import { ACALA_SHOULD_RELAY_URL, CarrierChainId, RELAYER_COMPARE_ASSET } from './consts';
 import { TokenData } from './tokenData/helper';
@@ -7,7 +13,7 @@ import { getEvmGasPrice } from './fees';
 import { PolkachainTokens } from './tokenData/mrl';
 import BigNumber from 'bignumber.js';
 import { isCarrierEVMChain, isCarrierPolkaChain, parseAmount } from './web3Utils';
-import { needToPayMRLFee } from './polkadot';
+import { needToPayMRLFee, needTransferByMRL } from './polkadot';
 import { getCCTPNetworkConfigs } from './cctp';
 
 export type RelayToken = {
@@ -229,16 +235,16 @@ export async function calculateRelayerFee(options: {
   let feeParsed = feeFormatted != null ? parseAmount(feeFormatted, sourceToken.decimals) : undefined;
   let usdString = feeUsd != null ? feeUsd.toFixed(2) : undefined;
 
-  const relayable =
-    (isCarrierEVMChain(sourceChainId) && sourceChainId !== CHAIN_ID_MOONBEAM && isCarrierPolkaChain(targetChainId)) ||
-    (isCarrierPolkaChain(sourceChainId) && isCarrierEVMChain(targetChainId) && targetChainId !== CHAIN_ID_MOONBEAM)
-      ? true
-      : cctpConfigs
+  const relayable = needTransferByMRL(sourceChainId, targetChainId)
+    ? targetChainId === CHAIN_ID_SOLANA
       ? false
-      : relayerTokenInfo != null &&
-        isRelayable(originChainId, originAddress, relayerTokenInfo) &&
-        feeUsd != null &&
-        feeUsd > 0;
+      : true
+    : cctpConfigs
+    ? false
+    : relayerTokenInfo != null &&
+      isRelayable(originChainId, originAddress, relayerTokenInfo) &&
+      feeUsd != null &&
+      feeUsd > 0;
 
   // ACALA and KARURA will do free relay for user, so relayable still true but feeUsd need set to undefined
   if (acalaShouldRelay) {
