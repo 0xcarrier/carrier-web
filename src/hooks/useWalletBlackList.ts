@@ -44,12 +44,9 @@ export function useWalletBlackList(options: { sourceWalletAddress?: string; targ
 
         const resp = await fetch(BLACKLIST_SCREEN_URL, {
           signal,
-          method: CLUSTER === 'mainnet' ? 'POST' : 'GET',
+          method: 'POST',
           headers,
-          body:
-            CLUSTER === 'mainnet'
-              ? JSON.stringify([{ address: sourceWalletAddress }, { address: targetWalletAddress }])
-              : undefined,
+          body: JSON.stringify([{ address: sourceWalletAddress }, { address: targetWalletAddress }]),
         });
         // DO NOT local cache the result, because it can be tampered with and bypass the checks.
         const respJSON = await resp.json();
