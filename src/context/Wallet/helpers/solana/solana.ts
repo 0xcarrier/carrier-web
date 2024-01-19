@@ -993,7 +993,9 @@ async function signSendAndConfirmWithRetry(options: {
   signTransaction: WalletContextState['signTransaction'];
   transactionGetter: () => Promise<Transaction>;
   retryCount?: number;
-}) {
+}): Promise<{
+  txHash: string;
+}> {
   const { connection, signTransaction, transactionGetter, retryCount = 0 } = options;
   const transaction = await transactionGetter();
 
