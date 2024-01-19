@@ -189,18 +189,22 @@ export async function transferSolNative(data: TransferSolNativeData) {
   const feeParsed = relayerFee || ethers.BigNumber.from(0);
   const transferAmountParsed = baseAmountParsed.add(feeParsed);
   const recipientAddressUnit8Array = tryCarrierNativeToUint8Array(recipientAddress, recipientChain);
-  const transaction = await transferNativeSol(
-    connection,
-    SOL_BRIDGE_ADDRESS,
-    SOL_TOKEN_BRIDGE_ADDRESS,
-    publicKey,
-    transferAmountParsed.toBigInt(),
-    recipientAddressUnit8Array,
-    recipientChain as WormholeChainId,
-    feeParsed.toBigInt(),
-  );
 
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+  return await signSendAndConfirmWithRetry({
+    connection,
+    transactionGetter: () =>
+      transferNativeSol(
+        connection,
+        SOL_BRIDGE_ADDRESS,
+        SOL_TOKEN_BRIDGE_ADDRESS,
+        publicKey,
+        transferAmountParsed.toBigInt(),
+        recipientAddressUnit8Array,
+        recipientChain as WormholeChainId,
+        feeParsed.toBigInt(),
+      ),
+    signTransaction,
+  });
 }
 
 async function transferTokenFromSolana(
@@ -339,23 +343,27 @@ export async function transferSolToken(data: TransferSolTokenData) {
 
   const recipientAddressUnit8Array = tryCarrierNativeToUint8Array(recipientAddress, recipientChain);
   const originAddressUnit8Array = tryCarrierNativeToUint8Array(originAddress, originChain);
-  const transaction = await transferTokenFromSolana(
-    connection,
-    SOL_BRIDGE_ADDRESS,
-    SOL_TOKEN_BRIDGE_ADDRESS,
-    publicKey.toBase58(),
-    splParsedTokenAccount.pubkey.toBase58(),
-    tokenAddress,
-    transferAmountParsed.toBigInt(),
-    recipientAddressUnit8Array,
-    recipientChain,
-    originAddressUnit8Array,
-    originChain,
-    undefined,
-    feeParsed.toBigInt(),
-  );
 
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+  return await signSendAndConfirmWithRetry({
+    connection,
+    transactionGetter: () =>
+      transferTokenFromSolana(
+        connection,
+        SOL_BRIDGE_ADDRESS,
+        SOL_TOKEN_BRIDGE_ADDRESS,
+        publicKey.toBase58(),
+        splParsedTokenAccount.pubkey.toBase58(),
+        tokenAddress,
+        transferAmountParsed.toBigInt(),
+        recipientAddressUnit8Array,
+        recipientChain,
+        originAddressUnit8Array,
+        originChain,
+        undefined,
+        feeParsed.toBigInt(),
+      ),
+    signTransaction,
+  });
 }
 
 export type TransferSolTBTCData = TransferTBTCData & {
@@ -387,20 +395,23 @@ export async function transferSolTbtc(data: TransferSolTBTCData) {
   }
   const recipientAddressUnit8Array = tryCarrierNativeToUint8Array(recipientAddress, recipientChain);
 
-  const transaction = await transferTbtcFromSolana({
+  return await signSendAndConfirmWithRetry({
     connection,
-    bridgeAddress: new PublicKey(SOL_BRIDGE_ADDRESS),
-    tokenBridgeAddress: new PublicKey(SOL_TOKEN_BRIDGE_ADDRESS),
-    payerAddress: publicKey,
-    fromAddress: tbtcTokenAccount.pubkey,
-    mintAddress: new PublicKey(tokenAddress),
-    wrappedTbtcMint: new PublicKey(getWtBTCAddressForChain(CHAIN_ID_SOLANA)),
-    amount: transferAmountParsed.toBigInt(),
-    targetAddress: recipientAddressUnit8Array,
-    targetChain: recipientChain,
+    transactionGetter: () =>
+      transferTbtcFromSolana({
+        connection,
+        bridgeAddress: new PublicKey(SOL_BRIDGE_ADDRESS),
+        tokenBridgeAddress: new PublicKey(SOL_TOKEN_BRIDGE_ADDRESS),
+        payerAddress: publicKey,
+        fromAddress: tbtcTokenAccount.pubkey,
+        mintAddress: new PublicKey(tokenAddress),
+        wrappedTbtcMint: new PublicKey(getWtBTCAddressForChain(CHAIN_ID_SOLANA)),
+        amount: transferAmountParsed.toBigInt(),
+        targetAddress: recipientAddressUnit8Array,
+        targetChain: recipientChain,
+      }),
+    signTransaction,
   });
-
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
 }
 
 async function transferNFTFromSolana(
@@ -512,21 +523,24 @@ export async function transferSolNFT(data: TransferSolNFTData) {
   console.log('origin chain: ', originChain);
   console.log('token id: ', tokenId);
 
-  const transaction = await transferNFTFromSolana(
+  return await signSendAndConfirmWithRetry({
     connection,
-    SOL_BRIDGE_ADDRESS,
-    SOL_NFT_BRIDGE_ADDRESS,
-    publicKey,
-    splParsedTokenAccount.pubkey.toBase58(),
-    tokenAddress,
-    recipientAddressUnit8Array,
-    recipientChain,
-    originAddressUnit8Array,
-    originChain,
-    arrayify(ethers.BigNumber.from(tokenId)),
-  );
-
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+    transactionGetter: () =>
+      transferNFTFromSolana(
+        connection,
+        SOL_BRIDGE_ADDRESS,
+        SOL_NFT_BRIDGE_ADDRESS,
+        publicKey,
+        splParsedTokenAccount.pubkey.toBase58(),
+        tokenAddress,
+        recipientAddressUnit8Array,
+        recipientChain,
+        originAddressUnit8Array,
+        originChain,
+        arrayify(ethers.BigNumber.from(tokenId)),
+      ),
+    signTransaction,
+  });
 }
 
 export type RedeemSolNativeData = RedeemData & {
@@ -572,15 +586,12 @@ export async function redeemSolNative(data: RedeemSolNativeData) {
     false,
   );
 
-  const transaction = await redeemAndUnwrapOnSolana(
+  return await signSendAndConfirmWithRetry({
     connection,
-    SOL_BRIDGE_ADDRESS,
-    SOL_TOKEN_BRIDGE_ADDRESS,
-    payerAddress,
-    signedVAA,
-  );
-
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+    transactionGetter: () =>
+      redeemAndUnwrapOnSolana(connection, SOL_BRIDGE_ADDRESS, SOL_TOKEN_BRIDGE_ADDRESS, payerAddress, signedVAA),
+    signTransaction,
+  });
 }
 
 export type RedeemSolTokenData = RedeemData & {
@@ -613,15 +624,12 @@ export async function redeemSolToken(data: RedeemSolTokenData) {
     false,
   );
 
-  const transaction = await redeemTokenOnSolana(
+  return await signSendAndConfirmWithRetry({
     connection,
-    SOL_BRIDGE_ADDRESS,
-    SOL_TOKEN_BRIDGE_ADDRESS,
-    payerAddress,
-    signedVAA,
-  );
-
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+    transactionGetter: () =>
+      redeemTokenOnSolana(connection, SOL_BRIDGE_ADDRESS, SOL_TOKEN_BRIDGE_ADDRESS, payerAddress, signedVAA),
+    signTransaction,
+  });
 }
 
 export type RedeemSolTBTCData = RedeemData & {
@@ -654,15 +662,18 @@ export async function redeemSolTbtc(data: RedeemSolTBTCData) {
     false,
   );
 
-  const transaction = await redeemTbtcOnSolana({
+  return await signSendAndConfirmWithRetry({
     connection,
-    bridgeAddress: new PublicKey(SOL_BRIDGE_ADDRESS),
-    tokenBridgeAddress: new PublicKey(SOL_TOKEN_BRIDGE_ADDRESS),
-    payerAddress: publicKey,
-    signedVAA,
+    transactionGetter: () =>
+      redeemTbtcOnSolana({
+        connection,
+        bridgeAddress: new PublicKey(SOL_BRIDGE_ADDRESS),
+        tokenBridgeAddress: new PublicKey(SOL_TOKEN_BRIDGE_ADDRESS),
+        payerAddress: publicKey,
+        signedVAA,
+      }),
+    signTransaction,
   });
-
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
 }
 
 export type RedeemSolNFTData = RedeemData & {
@@ -728,26 +739,23 @@ export async function redeemSolNFT(data: RedeemSolNFTData) {
     }
   }
 
-  let transaction = await getRedeemTransaction(signTransaction);
   // required to be send and confirm before creating metadata
-  console.log('solana NFT redemption transaction', transaction);
 
-  let result = await signSendAndConfirm({ connection, transaction, signTransaction });
+  let result = await signSendAndConfirmWithRetry({
+    connection,
+    transactionGetter: () => getRedeemTransaction(signTransaction),
+    signTransaction,
+  });
   console.log('solana NFT redemption transaction signSendAndConfirm', result);
-
-  if (!transaction) {
-    throw errorGettingTransactionInfo;
-  }
 
   const isNative = await isNFTVAASolanaNative(signedVAA);
   if (!isNative) {
     const _transactionWithMeta = await getRedeemTransactionWithCreatedMeta();
     if (!!_transactionWithMeta) {
-      transaction = _transactionWithMeta;
       // should only be send if metadata is required to be created
       // e.g. previous bridged nft would skip this inside branch
       console.log('redeemSolNFT4');
-      result = await signSendAndConfirm({ connection, transaction, signTransaction });
+      result = await signSendAndConfirm({ connection, transaction: _transactionWithMeta, signTransaction });
     }
   }
 
@@ -769,15 +777,13 @@ export async function attestSol(data: AttestSolData) {
   }
 
   const connection = getSolanaConnection();
-  const transaction = await attestFromSolana(
-    connection,
-    SOL_BRIDGE_ADDRESS,
-    SOL_TOKEN_BRIDGE_ADDRESS,
-    publicKey.toString(),
-    tokenAddress,
-  );
 
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+  return await signSendAndConfirmWithRetry({
+    connection,
+    transactionGetter: () =>
+      attestFromSolana(connection, SOL_BRIDGE_ADDRESS, SOL_TOKEN_BRIDGE_ADDRESS, publicKey.toString(), tokenAddress),
+    signTransaction,
+  });
 }
 
 export type RegisterSolData = RegisterData & {
@@ -807,23 +813,27 @@ export async function registerSol(data: RegisterSolData) {
     // sign multiple transactions at one time will trigger an error
     false,
   );
-  const transaction = shouldUpdate
-    ? await updateWrappedOnSolana(
-        connection,
-        SOL_BRIDGE_ADDRESS,
-        SOL_TOKEN_BRIDGE_ADDRESS,
-        publicKey.toString(),
-        signedVAA,
-      )
-    : await createWrappedOnSolana(
-        connection,
-        SOL_BRIDGE_ADDRESS,
-        SOL_TOKEN_BRIDGE_ADDRESS,
-        publicKey.toString(),
-        signedVAA,
-      );
 
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+  return await signSendAndConfirmWithRetry({
+    connection,
+    transactionGetter: () =>
+      shouldUpdate
+        ? updateWrappedOnSolana(
+            connection,
+            SOL_BRIDGE_ADDRESS,
+            SOL_TOKEN_BRIDGE_ADDRESS,
+            publicKey.toString(),
+            signedVAA,
+          )
+        : createWrappedOnSolana(
+            connection,
+            SOL_BRIDGE_ADDRESS,
+            SOL_TOKEN_BRIDGE_ADDRESS,
+            publicKey.toString(),
+            signedVAA,
+          ),
+    signTransaction,
+  });
 }
 
 export interface GetDelegateAmountData extends GetAllowanceData {
@@ -898,12 +908,18 @@ export async function approveSolToken(data: ApproveSolTokenData) {
     amount.toBigInt(),
   );
 
-  const transaction = new Transaction().add(approvalIx);
-  const { blockhash } = await connection.getLatestBlockhash('confirmed');
-  transaction.recentBlockhash = blockhash;
-  transaction.feePayer = publicKey;
+  return await signSendAndConfirmWithRetry({
+    connection,
+    transactionGetter: async () => {
+      const transaction = new Transaction().add(approvalIx);
+      const { blockhash } = await connection.getLatestBlockhash('confirmed');
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = publicKey;
 
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+      return transaction;
+    },
+    signTransaction,
+  });
 }
 
 export type TransferSolTokenByMRLData = TransferTokenData & {
@@ -948,22 +964,61 @@ export async function transferSolTokenByMRL(data: TransferSolTokenByMRLData) {
 
   const originAddressUnit8Array = tryCarrierNativeToUint8Array(originAddress, originChain);
   const payload = createMRLPayload(recipientChain, recipientAddress);
-  const transaction = await transferTokenFromSolana(
-    connection,
-    SOL_BRIDGE_ADDRESS,
-    SOL_TOKEN_BRIDGE_ADDRESS,
-    publicKey.toBase58(),
-    splParsedTokenAccount.pubkey.toBase58(),
-    tokenAddress,
-    amountParsed.toBigInt(),
-    MOONBEAM_ROUTED_LIQUIDITY_PRECOMPILE,
-    CHAIN_ID_MOONBEAM,
-    originAddressUnit8Array,
-    originChain,
-    undefined,
-    undefined,
-    payload,
-  );
 
-  return await signSendAndConfirm({ connection, transaction, signTransaction });
+  return await signSendAndConfirmWithRetry({
+    connection,
+    transactionGetter: () =>
+      transferTokenFromSolana(
+        connection,
+        SOL_BRIDGE_ADDRESS,
+        SOL_TOKEN_BRIDGE_ADDRESS,
+        publicKey.toBase58(),
+        splParsedTokenAccount.pubkey.toBase58(),
+        tokenAddress,
+        amountParsed.toBigInt(),
+        MOONBEAM_ROUTED_LIQUIDITY_PRECOMPILE,
+        CHAIN_ID_MOONBEAM,
+        originAddressUnit8Array,
+        originChain,
+        undefined,
+        undefined,
+        payload,
+      ),
+    signTransaction,
+  });
+}
+
+async function signSendAndConfirmWithRetry(options: {
+  connection: Connection;
+  signTransaction: WalletContextState['signTransaction'];
+  transactionGetter: () => Promise<Transaction>;
+  retryCount?: number;
+}) {
+  const { connection, signTransaction, transactionGetter, retryCount = 0 } = options;
+  const transaction = await transactionGetter();
+
+  if (!transaction) {
+    throw errorGettingTransactionInfo;
+  }
+
+  console.log('signSendAndConfirmWithRetry transaction', transaction);
+
+  try {
+    const result = await signSendAndConfirm({ connection, transaction, signTransaction });
+
+    console.log('signSendAndConfirmWithRetry result', result);
+
+    return result;
+  } catch (e) {
+    if ((e as Error).message.includes('block height exceeded') && retryCount < 3) {
+      return signSendAndConfirmWithRetry({
+        connection,
+        signTransaction,
+        transactionGetter,
+        retryCount: retryCount + 1,
+      });
+    } else {
+      throw e;
+    }
+  }
 }
