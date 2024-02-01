@@ -79,9 +79,7 @@ import {
   errorNFTIdInvalid,
   errorTargetAddressOwnerNotMatch,
 } from './error';
-import { getTBTCAddressForChain, getTBTCGatewayForChain, getWtBTCAddressForChain } from '../../../../utils/tbtc';
-import { PostedVaaData, derivePostedVaaKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
-import { getAccountData } from '@certusone/wormhole-sdk/lib/cjs/solana';
+import { getWtBTCAddressForChain } from '../../../../utils/tbtc';
 import { checkSrcAndDestChain } from '../../../../utils/ethereum';
 
 export type SignSolTransactionData = {
@@ -165,7 +163,7 @@ async function signSendAndConfirm(options: SignSendAndConfirmSolTransactionOptio
   }
 
   const rawTransaction = (await signTransaction(transaction)).serialize();
-  const signature = await connection.sendRawTransaction(rawTransaction);
+  const signature = await connection.sendRawTransaction(rawTransaction, { skipPreflight: true, maxRetries: 5 });
 
   return { txHash: signature };
 }
@@ -573,18 +571,22 @@ export async function redeemSolNative(data: RedeemSolNativeData) {
     throw errorTargetAddressOwnerNotMatch;
   }
 
-  await postVaaSolana(
-    connection,
-    signTransaction,
-    SOL_BRIDGE_ADDRESS,
-    payerAddress,
-    Buffer.from(signedVAA),
-    undefined,
-    // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
-    // because phantom only allow approve one transaction at one time
-    // sign multiple transactions at one time will trigger an error
-    false,
-  );
+  await runWithRetry({
+    runner: async () => {
+      await postVaaSolana(
+        connection,
+        signTransaction,
+        SOL_BRIDGE_ADDRESS,
+        payerAddress,
+        Buffer.from(signedVAA),
+        undefined,
+        // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
+        // because phantom only allow approve one transaction at one time
+        // sign multiple transactions at one time will trigger an error
+        false,
+      );
+    },
+  });
 
   return await signSendAndConfirmWithRetry({
     connection,
@@ -611,18 +613,22 @@ export async function redeemSolToken(data: RedeemSolTokenData) {
   const connection = getSolanaConnection();
   const payerAddress = publicKey.toString();
 
-  await postVaaSolana(
-    connection,
-    signTransaction,
-    SOL_BRIDGE_ADDRESS,
-    payerAddress,
-    Buffer.from(signedVAA),
-    undefined,
-    // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
-    // because phantom only allow approve one transaction at one time
-    // sign multiple transactions at one time will trigger an error
-    false,
-  );
+  await runWithRetry({
+    runner: async () => {
+      await postVaaSolana(
+        connection,
+        signTransaction,
+        SOL_BRIDGE_ADDRESS,
+        payerAddress,
+        Buffer.from(signedVAA),
+        undefined,
+        // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
+        // because phantom only allow approve one transaction at one time
+        // sign multiple transactions at one time will trigger an error
+        false,
+      );
+    },
+  });
 
   return await signSendAndConfirmWithRetry({
     connection,
@@ -649,18 +655,22 @@ export async function redeemSolTbtc(data: RedeemSolTBTCData) {
   const connection = getSolanaConnection();
   const payerAddress = publicKey.toString();
 
-  await postVaaSolana(
-    connection,
-    signTransaction,
-    SOL_BRIDGE_ADDRESS,
-    payerAddress,
-    Buffer.from(signedVAA),
-    undefined,
-    // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
-    // because phantom only allow approve one transaction at one time
-    // sign multiple transactions at one time will trigger an error
-    false,
-  );
+  await runWithRetry({
+    runner: async () => {
+      await postVaaSolana(
+        connection,
+        signTransaction,
+        SOL_BRIDGE_ADDRESS,
+        payerAddress,
+        Buffer.from(signedVAA),
+        undefined,
+        // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
+        // because phantom only allow approve one transaction at one time
+        // sign multiple transactions at one time will trigger an error
+        false,
+      );
+    },
+  });
 
   return await signSendAndConfirmWithRetry({
     connection,
@@ -697,18 +707,24 @@ export async function redeemSolNFT(data: RedeemSolNFTData) {
 
   async function getRedeemTransaction(signTransaction: SignTransaction) {
     console.log('redeemSolNFT2');
-    await postVaaSolana(
-      connection,
-      signTransaction,
-      SOL_BRIDGE_ADDRESS,
-      payerAddress,
-      Buffer.from(signedVAA),
-      undefined,
-      // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
-      // because phantom only allow approve one transaction at one time
-      // sign multiple transactions at one time will trigger an error
-      false,
-    );
+
+    await runWithRetry({
+      runner: async () => {
+        await postVaaSolana(
+          connection,
+          signTransaction,
+          SOL_BRIDGE_ADDRESS,
+          payerAddress,
+          Buffer.from(signedVAA),
+          undefined,
+          // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
+          // because phantom only allow approve one transaction at one time
+          // sign multiple transactions at one time will trigger an error
+          false,
+        );
+      },
+    });
+
     // TODO: how do we retry in between these steps
     console.log('redeemSolNFT3');
     return await redeemNFTOnSolana(connection, SOL_BRIDGE_ADDRESS, SOL_NFT_BRIDGE_ADDRESS, payerAddress, signedVAA);
@@ -801,18 +817,23 @@ export async function registerSol(data: RegisterSolData) {
   }
 
   const connection = getSolanaConnection();
-  await postVaaSolana(
-    connection,
-    signTransaction,
-    SOL_BRIDGE_ADDRESS,
-    publicKey.toString(),
-    Buffer.from(signedVAA),
-    undefined,
-    // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
-    // because phantom only allow approve one transaction at one time
-    // sign multiple transactions at one time will trigger an error
-    false,
-  );
+
+  await runWithRetry({
+    runner: async () => {
+      await postVaaSolana(
+        connection,
+        signTransaction,
+        SOL_BRIDGE_ADDRESS,
+        publicKey.toString(),
+        Buffer.from(signedVAA),
+        undefined,
+        // set asyncVerifySignatures to false to prevent phantom from popping up multiple windows
+        // because phantom only allow approve one transaction at one time
+        // sign multiple transactions at one time will trigger an error
+        false,
+      );
+    },
+  });
 
   return await signSendAndConfirmWithRetry({
     connection,
@@ -1019,6 +1040,31 @@ async function signSendAndConfirmWithRetry(options: {
         connection,
         signTransaction,
         transactionGetter,
+        retryCount: retryCount + 1,
+      });
+    } else {
+      throw e;
+    }
+  }
+}
+
+async function runWithRetry<T>(options: { runner: () => Promise<T>; retryCount?: number }): Promise<T> {
+  const { runner, retryCount = 0 } = options;
+
+  console.log('runWithRetry');
+
+  try {
+    const result = await runner();
+
+    console.log('runWithRetry result', result);
+
+    return result;
+  } catch (e) {
+    if ((e as Error).message.includes('block height exceeded') && retryCount < 3) {
+      console.error(e);
+
+      return runWithRetry({
+        runner,
         retryCount: retryCount + 1,
       });
     } else {
