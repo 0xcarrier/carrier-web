@@ -1013,6 +1013,8 @@ async function signSendAndConfirmWithRetry(options: {
     return result;
   } catch (e) {
     if ((e as Error).message.includes('block height exceeded') && retryCount < 3) {
+      console.error(e);
+
       return signSendAndConfirmWithRetry({
         connection,
         signTransaction,
