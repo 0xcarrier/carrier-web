@@ -10,6 +10,7 @@ interface Props {
   title: string;
   tips?: ReactNode;
   visible: boolean;
+  disableSearch?: boolean;
   searchPlaceHolder?: string;
   searching?: boolean;
   onSearch?: (value: string) => void;
@@ -20,6 +21,7 @@ export const SelectionModal: React.SFC<Props> = ({
   title,
   tips,
   visible,
+  disableSearch,
   searchPlaceHolder,
   searching,
   children,
@@ -27,12 +29,14 @@ export const SelectionModal: React.SFC<Props> = ({
   onVisibleChanged,
 }) => {
   const [searchInputValue, setSearchInputValue] = useState('');
-  const onSearchDebounce = onSearch ? useDebouncedCallback(onSearch, 1000) : undefined;
+  const onSearchDebounce = useDebouncedCallback((value: string) => {
+    if (onSearch) {
+      onSearch(value);
+    }
+  }, 1000);
 
   useEffect(() => {
-    if (onSearchDebounce) {
-      onSearchDebounce(searchInputValue);
-    }
+    onSearchDebounce(searchInputValue);
   }, [searchInputValue]);
 
   useEffect(() => {
@@ -50,8 +54,10 @@ export const SelectionModal: React.SFC<Props> = ({
       onCancel={() => {
         onVisibleChanged(false);
       }}>
-      {tips ? <div className={styleTipsWrapper}>{tips}</div> : null}
-      {onSearch ? (
+      {tips ? (
+        <div className={cx(styleTipsWrapper, disableSearch ? styleTipsWrapperMargin : undefined)}>{tips}</div>
+      ) : null}
+      {!disableSearch ? (
         <div className={SearchWrapper}>
           <SVGIcon iconName="search" />
           <div className={styleInputWrapper}>
@@ -177,5 +183,13 @@ const styleTipsWrapper = css`
 
   @media (max-width: 1024px) {
     margin: ${pxToMobileVw(16)} ${pxToMobileVw(16)} 0;
+  }
+`;
+
+const styleTipsWrapperMargin = css`
+  margin: ${pxToPcVw(16)};
+
+  @media (max-width: 1024px) {
+    margin: ${pxToMobileVw(16)};
   }
 `;
