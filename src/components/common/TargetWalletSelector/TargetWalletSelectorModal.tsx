@@ -50,7 +50,6 @@ export const TargetWalletSelectorModal: React.SFC<Props> = ({
       visible={isVisible}
       title="Destination wallet"
       searchPlaceHolder="Search wallet name"
-      onVisibleChanged={onWalletSelectorModalVisibleChange}
       tips={
         <InfoBanner
           type="info"
@@ -69,6 +68,8 @@ export const TargetWalletSelectorModal: React.SFC<Props> = ({
           }
         />
       }
+      disableSearch={targetChainId === CHAIN_ID_SOLANA}
+      onVisibleChanged={onWalletSelectorModalVisibleChange}
       onSearch={(searchString) => {
         const walletIndex = wallets.findIndex((item) => {
           return (
@@ -81,16 +82,11 @@ export const TargetWalletSelectorModal: React.SFC<Props> = ({
           setWalletNameFilter(searchString);
         } else {
           let addressIsValid = true;
+
           if (isCarrierEVMChain(targetChainId)) {
             addressIsValid = ethers.utils.isAddress(searchString);
-          } else if (targetChainId === CHAIN_ID_SOLANA) {
-            try {
-              new PublicKey(searchString).toBase58();
-            } catch (e) {
-              console.log(e);
-              addressIsValid = false;
-            }
           }
+
           if (addressIsValid) {
             onSelectWallet({ chainId: targetChainId, walletAddress: searchString });
             onWalletSelectorModalVisibleChange(false);
