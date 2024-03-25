@@ -39,7 +39,7 @@ jobs:
           DISCLAIMER_LINK: "https://docs.carrier.so/resources/disclaimer"
           DESITINATION_WALLET_TIPS_LINK: "https://docs.carrier.so/resources/frequently-asked-questions#can-i-use-any-wallet-address-as-the-destination-wallet"
           CARRIER_VERSION: "${{ steps.get-latest-tag.outputs.tag }}"
-          # DISABLED_CHAINS: '[{"source": "all", "target": 2, "disableChain": true, "bothDirections": false, "disableTokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]}]'
+          DISABLED_CHAINS: '[{"source": 2034, "target": 16, "disableChain": true, "bothDirections": true}, {"source": 2032, "target": 16, "disableChain": true, "bothDirections": true}]'
         run: npm i && npm run build:production && cp dist/index.html dist/200.html
       - name: Deploy
         id: deploy
