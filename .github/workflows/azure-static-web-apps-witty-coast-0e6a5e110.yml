@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: "16"
           cache: "npm"
-          cache-dependency=path: package-lock.json
+          cache-dependency-path: package-lock.json
           check-latest: true
       - name: Get Git Tag
         uses: actions-ecosystem/action-get-latest-tag@v1
