@@ -8,6 +8,7 @@ const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+const WebpackStringReplacer = require('webpack-string-replacer');
 
 const NODE_ENV = process.env.NODE_ENV;
 
@@ -197,6 +198,43 @@ module.exports = {
     new NodePolyfillPlugin(),
     new MiniCssExtractPlugin({
       filename: isProduction ? '[name]-[contenthash:8].css' : '[name].css',
+    }),
+    new WebpackStringReplacer({
+      rules: [
+        {
+          fileInclude: /node_modules\/@moonbeam-network\/xcm-sdk\/build\/.*?mjs/,
+          replacements: [
+            // // because xcm-sdk require ethers > v6, but we use ethers 5
+            // // so we install ethers v6 as ethers6 and replace the xcm sdk code
+            // {
+            //   pattern: /from"ethers"/g,
+            //   replacement: 'from"ethers6"',
+            // },
+            // // ethers v6 is using runner instead of signer
+            // {
+            //   pattern: /"signer"in/g,
+            //   replacement: '"runner"in',
+            // },
+            // we don't want to use ethers v6 on xcm-sdk, because they have many issues with the ethers v6
+            // we use ethers v5 for now and at least it can work except this one.
+            {
+              pattern: /t\[this\.#t\.func\]\.estimateGas/g,
+              replacement: 't.estimateGas[this.#t.func]',
+            },
+          ],
+        },
+        // polkadot util depends on the xglobal.process, but it will crash on browser
+        // so replace it with nodejs process and it will be handled by dot env plugin
+        {
+          fileInclude: /node_modules\/@polkadot\/util\/logger.js/,
+          replacements: [
+            {
+              pattern: /xglobal.process/g,
+              replacement: 'process',
+            },
+          ],
+        },
+      ],
     }),
     new HtmlWebpackPlugin({
       filename: isProduction ? '../index.html' : 'index.html',
