@@ -13,5 +13,5 @@
     "lib": ["es2016", "dom"]
   },
   "include": ["**/global.d.ts", "src/declaration.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["tests/**", "node_modules", "src-backup"]
+  "exclude": ["tests/**", "node_modules"]
 }
